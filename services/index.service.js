@@ -1,15 +1,15 @@
 import axios from "axios";
 
 class Service {
-  constructor(api) {
+  constructor() {
     this.service = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || " http://localhost:5005",
+      baseURL: import.meta.env.VITE_API_URL || " http://localhost:5005/api",
     });
 
     this.service.interceptors.request.use((config) => {
       const storedToken = localStorage.getItem("authToken");
       if (storedToken) {
-        config.headers = { authorization: storedToken };
+        config.headers = { authorization: `Bearer ${storedToken}` };
       }
       return config;
     });
