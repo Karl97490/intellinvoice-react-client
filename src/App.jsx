@@ -1,10 +1,17 @@
 import { useContext, useEffect, useState } from "react";
 import "./App.css";
+
 import authService from "./services/auth.service";
 import { AuthContext } from "./context/auth.context";
+import { Routes, Route } from "react-router-dom";
+
+import Navbar from "./components/Navbar";
+import HomePage from "./pages/HomePage";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
 
 function App() {
-  const { isLoggedIn, user, authenticateUser, storeToken, removeToken } =
+  const { isLoggedIn, userId, authenticateUser, storeToken, removeToken } =
     useContext(AuthContext);
 
   useEffect(
@@ -64,7 +71,13 @@ function App() {
 
   return (
     <>
-      This is App component...
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />}></Route>
+        <Route path="/signup" element={<Signup />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+      </Routes>
+      {/* This is App component...
       {!isLoggedIn && (
         <>
           <button onClick={authSignUp}>SignUp</button>
@@ -74,12 +87,11 @@ function App() {
       {isLoggedIn && (
         <>
           <div>
-            <p>{user._id}</p>
-            <p>{user.email}</p>
+            <p>{userId}</p>
           </div>
           <button onClick={authLogOut}>LogOut</button>
         </>
-      )}
+      )} */}
     </>
   );
 }
