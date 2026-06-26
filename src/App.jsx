@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./App.css";
-import authService from "../services/auth.service";
+import authService from "./services/auth.service";
+import { AuthContext } from "./context/auth.context";
 
 function App() {
+  const { isLoggedIn, user, authenticateUser, storeToken, removeToken } =
+    useContext(AuthContext);
+
   useEffect(
     () =>
       async function getData() {
@@ -39,28 +43,43 @@ function App() {
       };
       const response = await authService.login(body);
       console.log(response);
-      const authToken = response.data.authToken;
-      localStorage.setItem("authToken", authToken);
+      storeToken(response.data.authToken);
+      await authenticateUser();
     } catch (error) {
       console.log(error);
     }
   };
 
-  const authVerify = async () => {
-    try {
-      const response = await authService.verify();
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
+  const authLogOut = async () => {
+    // delete items
+    removeToken();
+
+    console.log("logout success.");
+
+    // Update states
+    authenticateUser();
+
+    // navigate
   };
 
   return (
     <>
       This is App component...
-      <button onClick={authSignUp}>SignUp</button>
-      <button onClick={authLogin}>Login</button>
-      <button onClick={authVerify}>Verify</button>
+      {!isLoggedIn && (
+        <>
+          <button onClick={authSignUp}>SignUp</button>
+          <button onClick={authLogin}>Login</button>
+        </>
+      )}
+      {isLoggedIn && (
+        <>
+          <div>
+            <p>{user._id}</p>
+            <p>{user.email}</p>
+          </div>
+          <button onClick={authLogOut}>LogOut</button>
+        </>
+      )}
     </>
   );
 }
