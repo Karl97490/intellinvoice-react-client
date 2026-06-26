@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { service } from "../services/index.service";
+import authService from "../services/auth.service";
 
 function App() {
   useEffect(
     () =>
       async function getData() {
         try {
-          const response = await service.get("/");
+          const response = await authService.test();
           console.log(response);
         } catch (error) {
           console.log(error);

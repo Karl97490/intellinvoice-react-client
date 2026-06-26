@@ -1,16 +1,23 @@
 import axios from "axios";
 
-const service = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || " http://localhost:5005",
-});
+class Service {
+  constructor(api) {
+    this.service = axios.create({
+      baseURL: import.meta.env.VITE_API_URL || " http://localhost:5005",
+    });
 
-service.interceptors.request.use((config) => {
-  const storedToken = localStorage.getItem("authToken");
-  if (storedToken) {
-    config.headers = { authorization: storedToken };
-    console.log(config);
+    this.service.interceptors.request.use((config) => {
+      const storedToken = localStorage.getItem("authToken");
+      if (storedToken) {
+        config.headers = { authorization: storedToken };
+      }
+      return config;
+    });
   }
-  return config;
-});
 
-export { service };
+  test = () => {
+    return this.service.get("/");
+  };
+}
+
+export default Service;
