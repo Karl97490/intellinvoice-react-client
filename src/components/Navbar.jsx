@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/auth.context";
 import { useContext } from "react";
+import { CircleUserRound } from "lucide-react";
 
 const Navbar = () => {
   const { authenticateUser, removeToken, isLoggedIn } = useContext(AuthContext);
@@ -73,6 +74,15 @@ const Navbar = () => {
                 >
                   <li>
                     <NavLink
+                      to="/profile"
+                      className="inline-flex items-center gap-x-1 w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
+                    >
+                      <CircleUserRound size={18} />
+                      Profile
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
                       to="/dashboard"
                       className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                     >
@@ -84,7 +94,7 @@ const Navbar = () => {
                       to="/clients"
                       className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                     >
-                      Settings
+                      Clients
                     </NavLink>
                   </li>
                   <li>
@@ -92,7 +102,7 @@ const Navbar = () => {
                       to="/invoices"
                       className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                     >
-                      Earnings
+                      Invoices
                     </NavLink>
                   </li>
                   <li>

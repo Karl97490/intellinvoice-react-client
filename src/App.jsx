@@ -12,6 +12,9 @@ import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
+import Dashboard from "./pages/Dasboard";
+import OnlyPublic from "./pages/OnlyPublic";
+import OnlyPrivate from "./pages/OnlyPrivate";
 
 function App() {
   useEffect(() => {
@@ -35,9 +38,38 @@ function App() {
     <>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />}></Route>
-          <Route path="/signup" element={<Signup />}></Route>
-          <Route path="/login" element={<Login />}></Route>
+          <Route
+            path="/"
+            element={
+              <OnlyPublic>
+                <HomePage />
+              </OnlyPublic>
+            }
+          ></Route>
+          <Route
+            path="/signup"
+            element={
+              <OnlyPublic>
+                <Signup />
+              </OnlyPublic>
+            }
+          ></Route>
+          <Route
+            path="/login"
+            element={
+              <OnlyPublic>
+                <Login />
+              </OnlyPublic>
+            }
+          ></Route>
+          <Route
+            path="/dashboard"
+            element={
+              <OnlyPrivate>
+                <Dashboard />
+              </OnlyPrivate>
+            }
+          ></Route>
         </Route>
       </Routes>
     </>

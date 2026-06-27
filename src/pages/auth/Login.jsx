@@ -37,7 +37,7 @@ const Login = () => {
       storeToken(response.data.authToken);
       await authenticateUser();
       setIsLoading(false);
-      navigate("/"); // navigate to private page (e.g : dashboard)
+      navigate("/dashboard"); // navigate to private page (e.g : dashboard)
     } catch (error) {
       console.log(error.response);
       setIsLoading(false);
