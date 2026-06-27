@@ -1,18 +1,22 @@
 import { useContext, useEffect, useState } from "react";
 import "./App.css";
 
-import authService from "./services/auth.service";
+import { initFlowbite } from "flowbite";
+
 import { AuthContext } from "./context/auth.context";
+import authService from "./services/auth.service";
+
 import { Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
+import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 
 function App() {
-  const { isLoggedIn, userId, authenticateUser, storeToken, removeToken } =
-    useContext(AuthContext);
+  useEffect(() => {
+    initFlowbite();
+  }, []);
 
   useEffect(
     () =>
@@ -27,71 +31,15 @@ function App() {
     [],
   );
 
-  const authSignUp = async () => {
-    try {
-      const body = {
-        firstName: "TestFrontEnd",
-        lastName: "Test Front-End",
-        email: "test.frontend@mail.com",
-        password: "TestFrontEnd000",
-      };
-      const response = await authService.signUp(body);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const authLogin = async () => {
-    try {
-      const body = {
-        email: "test.frontend@mail.com",
-        password: "TestFrontEnd000",
-      };
-      const response = await authService.login(body);
-      console.log(response);
-      storeToken(response.data.authToken);
-      await authenticateUser();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const authLogOut = async () => {
-    // delete items
-    removeToken();
-
-    console.log("logout success.");
-
-    // Update states
-    authenticateUser();
-
-    // navigate
-  };
-
   return (
     <>
-      <Navbar />
       <Routes>
-        <Route path="/" element={<HomePage />}></Route>
-        <Route path="/signup" element={<Signup />}></Route>
-        <Route path="/login" element={<Login />}></Route>
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />}></Route>
+          <Route path="/signup" element={<Signup />}></Route>
+          <Route path="/login" element={<Login />}></Route>
+        </Route>
       </Routes>
-      {/* This is App component...
-      {!isLoggedIn && (
-        <>
-          <button onClick={authSignUp}>SignUp</button>
-          <button onClick={authLogin}>Login</button>
-        </>
-      )}
-      {isLoggedIn && (
-        <>
-          <div>
-            <p>{userId}</p>
-          </div>
-          <button onClick={authLogOut}>LogOut</button>
-        </>
-      )} */}
     </>
   );
 }
