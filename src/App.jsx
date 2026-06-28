@@ -8,14 +8,14 @@ import authService from "./services/auth.service";
 
 import { Routes, Route } from "react-router-dom";
 
-import Layout from "./components/Layout";
-import HomePage from "./pages/HomePage";
+import Layout from "./pages/Layout";
+import HomePage from "./pages/landing/HomePage";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
-import Dashboard from "./pages/Dasboard";
-import Invoices from "./pages/Invoices";
-import OnlyPublic from "./pages/OnlyPublic";
-import OnlyPrivate from "./pages/OnlyPrivate";
+import Dashboard from "./pages/dasboard/Dasboard";
+import Invoices from "./pages/invoices/Invoices";
+import OnlyPrivate from "./pages/auth/OnlyPrivate";
+import OnlyPublic from "./pages/auth/OnlyPublic";
 
 function App() {
   useEffect(() => {

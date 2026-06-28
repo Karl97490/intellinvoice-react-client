@@ -1,4 +1,4 @@
-import { AuthContext } from "../context/auth.context";
+import { AuthContext } from "../../context/auth.context";
 import { useContext } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { SquarePlus } from "lucide-react";

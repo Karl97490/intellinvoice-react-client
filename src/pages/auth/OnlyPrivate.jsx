@@ -1,14 +1,14 @@
 import { useContext } from "react";
-import { AuthContext } from "../context/auth.context";
+import { AuthContext } from "../../context/auth.context";
 import { Navigate } from "react-router-dom";
 
-const OnlyPublic = (props) => {
+const OnlyPrivate = (props) => {
   const { isLoggedIn } = useContext(AuthContext);
-  if (!isLoggedIn) {
+  if (isLoggedIn) {
     return props.children;
   } else {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/login" />;
   }
 };
 
-export default OnlyPublic;
+export default OnlyPrivate;

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/auth.context";
+import { AuthContext } from "../../context/auth.context";
 import { useContext } from "react";
 import { CircleUserRound } from "lucide-react";
 
@@ -151,7 +151,7 @@ const Navbar = () => {
                   className="h-6 me-3"
                   alt="FlowBite Logo"
                 />
-                <span className="self-center text-lg font-semibold whitespace-nowrap dark:text-white">
+                <span className="self-center text-lg font-semibold whitespace-nowrap text-heading">
                   Flowbite
                 </span>
               </div>

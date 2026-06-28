@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { NavLink, Link } from "react-router-dom";
 
 const Invoices = () => {
   return (
@@ -258,14 +259,18 @@ const Invoices = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b dark:border-gray-700">
-                      <th
-                        scope="row"
-                        className="px-8 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                      >
-                        Apple iMac 27&#34;
-                        <span className="block text-gray-600">#INV-21569</span>
-                      </th>
+                    <tr className="border-b dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-blue-500">
+                      <Link>
+                        <th
+                          scope="row"
+                          className="px-8 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                        >
+                          Apple iMac 27&#34;
+                          <span className="block text-gray-600">
+                            #INV-21569
+                          </span>
+                        </th>
+                      </Link>
                       <td className="px-8 py-3">PC</td>
                       <td className="px-8 py-3">Apple</td>
                       <td className="px-8 py-3">300</td>
@@ -309,6 +314,14 @@ const Invoices = () => {
                                 className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                               >
                                 Edit
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                href="#"
+                                className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                              >
+                                Download
                               </a>
                             </li>
                           </ul>
