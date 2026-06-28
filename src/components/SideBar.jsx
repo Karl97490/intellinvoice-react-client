@@ -1,6 +1,7 @@
 import { AuthContext } from "../context/auth.context";
 import { useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { SquarePlus } from "lucide-react";
 
 const SideBar = () => {
   const { authenticateUser, removeToken, isLoggedIn } = useContext(AuthContext);
@@ -63,37 +64,11 @@ const SideBar = () => {
                 </NavLink>
               </li>
               <li>
-                <NavLink
-                  to="#"
-                  className="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
-                >
-                  <svg
-                    className="shrink-0 w-5 h-5 transition duration-75 group-hover:text-fg-brand"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 5v14M9 5v14M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"
-                    />
-                  </svg>
-                  <span className="flex-1 ms-3 whitespace-nowrap">Kanban</span>
-                  <span className="bg-neutral-secondary-medium border border-default-medium text-heading text-xs font-medium px-1.5 py-0.5 rounded-sm">
-                    Pro
-                  </span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="#"
-                  className="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
+                <button
+                  type="button"
+                  className="flex items-center w-full justify-between px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
+                  aria-controls="dropdown-invoices"
+                  data-collapse-toggle="dropdown-invoices"
                 >
                   <svg
                     className="shrink-0 w-5 h-5 transition duration-75 group-hover:text-fg-brand"
@@ -112,11 +87,125 @@ const SideBar = () => {
                       d="M4 13h3.439a.991.991 0 0 1 .908.6 3.978 3.978 0 0 0 7.306 0 .99.99 0 0 1 .908-.6H20M4 13v6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-6M4 13l2-9h12l2 9M9 7h6m-7 3h8"
                     />
                   </svg>
-                  <span className="flex-1 ms-3 whitespace-nowrap">Inbox</span>
-                  <span className="inline-flex items-center justify-center w-4.5 h-4.5 ms-2 text-xs font-medium text-fg-danger-strong bg-danger-soft border border-danger-subtle rounded-full">
-                    2
+                  <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
+                    Invoices
                   </span>
-                </NavLink>
+                  <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 9-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <ul id="dropdown-invoices" className="hidden py-2 space-y-2">
+                  <li>
+                    <Link
+                      to="/invoices"
+                      className="pl-10 flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
+                    >
+                      <span className="flex-1 whitespace-nowrap">List All</span>
+                      <span className="inline-flex items-center justify-center w-4.5 h-4.5 ms-2 text-xs font-medium text-fg-danger-strong bg-danger-soft border border-danger-subtle rounded-full">
+                        20
+                      </span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="#"
+                      className="pl-10 flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
+                    >
+                      <span className="">
+                        <SquarePlus size={16} />
+                      </span>
+                      <span className="flex-1 ms-1.5 whitespace-nowrap">
+                        Create Invoice
+                      </span>
+                    </Link>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  className="flex items-center w-full justify-between px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
+                  aria-controls="dropdown-clients"
+                  data-collapse-toggle="dropdown-clients"
+                >
+                  <svg
+                    className="shrink-0 w-5 h-5 transition duration-75 group-hover:text-fg-brand"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"
+                    />
+                  </svg>
+                  <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
+                    Clients
+                  </span>
+                  <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 9-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <ul id="dropdown-clients" className="hidden py-2 space-y-2">
+                  <li>
+                    <Link
+                      to="#"
+                      className="pl-10 flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
+                    >
+                      <span className="flex-1 whitespace-nowrap">List All</span>
+                      <span className="inline-flex items-center justify-center w-4.5 h-4.5 ms-2 text-xs font-medium text-fg-danger-strong bg-danger-soft border border-danger-subtle rounded-full">
+                        4
+                      </span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="#"
+                      className="pl-10 flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
+                    >
+                      <span className="">
+                        <SquarePlus size={16} />
+                      </span>
+                      <span className="flex-1 ms-1.5 whitespace-nowrap">
+                        Create Client
+                      </span>
+                    </Link>
+                  </li>
+                </ul>
               </li>
               <li>
                 <NavLink
@@ -140,33 +229,6 @@ const SideBar = () => {
                     />
                   </svg>
                   <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="#"
-                  className="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
-                >
-                  <svg
-                    className="shrink-0 w-5 h-5 transition duration-75 group-hover:text-fg-brand"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 10V6a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v4m3-2 .917 11.923A1 1 0 0 1 17.92 21H6.08a1 1 0 0 1-.997-1.077L6 8h12Z"
-                    />
-                  </svg>
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Products
-                  </span>
                 </NavLink>
               </li>
             </ul>

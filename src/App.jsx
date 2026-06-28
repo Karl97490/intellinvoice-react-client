@@ -13,6 +13,7 @@ import HomePage from "./pages/HomePage";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import Dashboard from "./pages/Dasboard";
+import Invoices from "./pages/Invoices";
 import OnlyPublic from "./pages/OnlyPublic";
 import OnlyPrivate from "./pages/OnlyPrivate";
 
@@ -67,6 +68,14 @@ function App() {
             element={
               <OnlyPrivate>
                 <Dashboard />
+              </OnlyPrivate>
+            }
+          ></Route>
+          <Route
+            path="/invoices"
+            element={
+              <OnlyPrivate>
+                <Invoices />
               </OnlyPrivate>
             }
           ></Route>
