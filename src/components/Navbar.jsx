@@ -145,7 +145,7 @@ const Navbar = () => {
                   />
                 </svg>
               </button>
-              <a href="https://flowbite.com" className="flex ms-2 md:me-24">
+              <div className="flex ms-2 md:me-24">
                 <img
                   src="https://flowbite.com/docs/images/logo.svg"
                   className="h-6 me-3"
@@ -154,7 +154,7 @@ const Navbar = () => {
                 <span className="self-center text-lg font-semibold whitespace-nowrap dark:text-white">
                   Flowbite
                 </span>
-              </a>
+              </div>
             </div>
             <div className="flex items-center">
               <div className="flex items-center ms-3">
@@ -190,35 +190,35 @@ const Navbar = () => {
                   </div>
                   <ul className="p-2 text-sm text-body font-medium" role="none">
                     <li>
-                      <a
-                        href="#"
+                      <NavLink
+                        to="/dashboard"
                         className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                         role="menuitem"
                       >
                         Dashboard
-                      </a>
+                      </NavLink>
                     </li>
                     <li>
-                      <a
-                        href="#"
+                      <NavLink
+                        to="/settings"
                         className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                         role="menuitem"
                       >
                         Settings
-                      </a>
+                      </NavLink>
                     </li>
                     <li>
-                      <a
-                        href="#"
+                      <NavLink
+                        to="/earnings"
                         className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                         role="menuitem"
                       >
                         Earnings
-                      </a>
+                      </NavLink>
                     </li>
                     <li>
                       <button
-                        className="inline-flex items-center gap-x-1 bg-red-50 text-red-400 w-full p-2 hover:bg-red-100 hover:text-red-500 rounded"
+                        className="inline-flex items-center mt-2 gap-x-1 bg-red-50 text-red-400 w-full p-2 hover:bg-red-100 hover:text-red-500 rounded"
                         role="menuitem"
                         onClick={handleLogOut}
                       >
