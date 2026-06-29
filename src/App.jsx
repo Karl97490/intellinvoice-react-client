@@ -14,6 +14,8 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import Dashboard from "./pages/dasboard/Dasboard";
 import Invoices from "./pages/invoices/Invoices";
+import CreateInvoice from "./pages/invoices/CreateInvoice";
+
 import OnlyPrivate from "./pages/auth/OnlyPrivate";
 import OnlyPublic from "./pages/auth/OnlyPublic";
 
@@ -76,6 +78,14 @@ function App() {
             element={
               <OnlyPrivate>
                 <Invoices />
+              </OnlyPrivate>
+            }
+          ></Route>
+          <Route
+            path="/invoices/new"
+            element={
+              <OnlyPrivate>
+                <CreateInvoice />
               </OnlyPrivate>
             }
           ></Route>

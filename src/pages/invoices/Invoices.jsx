@@ -260,17 +260,14 @@ const Invoices = () => {
                   </thead>
                   <tbody>
                     <tr className="border-b dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-blue-500">
-                      <Link>
-                        <th
-                          scope="row"
-                          className="px-8 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        >
-                          Apple iMac 27&#34;
-                          <span className="block text-gray-600">
-                            #INV-21569
-                          </span>
-                        </th>
-                      </Link>
+                      <th
+                        scope="row"
+                        className="px-8 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      >
+                        Apple iMac 27&#34;
+                        <span className="block text-gray-600">#INV-21569</span>
+                      </th>
+
                       <td className="px-8 py-3">PC</td>
                       <td className="px-8 py-3">Apple</td>
                       <td className="px-8 py-3">300</td>
