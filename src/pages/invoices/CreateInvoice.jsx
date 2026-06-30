@@ -2,12 +2,38 @@ import { NavLink, Link } from "react-router-dom";
 import { Eye, Plus } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { PencilLine } from "lucide-react";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import authService from "../../services/auth.service";
+import invoiceService from "../../services/invoice.service";
+import { AuthContext } from "../../context/auth.context";
 
 const CreateInvoice = () => {
+  const { userId } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
   const [invoiceForm, setInvoiceForm] = useState({
     invoiceNumber: "",
-    status: "",
+    owner: {
+      name: "",
+      email: "",
+      address: "",
+      phone: "",
+    },
+    client: {
+      name: "",
+      email: "",
+      address: "",
+      phone: "",
+    },
+    items: [
+      {
+        title: "Web Dev",
+        type: "product",
+        quantity: 1,
+        taxRate: 2.5,
+        unitPrice: 600,
+      },
+    ],
+    status: "unpaid",
     issuedDate: "",
     dueDate: "",
     total: "",
@@ -15,17 +41,71 @@ const CreateInvoice = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
+    const section = e.target.dataset.section;
+    // console.log(section, name, value);
+    if (section) {
+      setInvoiceForm((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [name]: value,
+        },
+      }));
+      return;
+    }
+
     setInvoiceForm((prev) => ({
-      ...invoiceForm,
+      ...prev,
       [name]: value,
     }));
   };
 
+  const handleSubmit = async (e) => {
+    console.log("submitting...");
+    e.preventDefault();
+    setIsLoading(true);
+    const body = {
+      ownerId: userId,
+      ...invoiceForm,
+    };
+    try {
+      const response = await invoiceService.createInvoice(body);
+      console.log(response);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error.response);
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div role="status" className="w-fit mx-auto">
+        <svg
+          aria-hidden="true"
+          className="inline w-12 h-12 w-10 h-10 text-neutral-tertiary animate-spin fill-brand"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+        <span className="sr-only">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:ml-64 mt-14">
-      <div className="flex flex-col gap-5 p-4 border border-default border-dashed rounded-base">
-        <form onSubmit={undefined}>
+      <div className="p-4 border border-default border-dashed rounded-base">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="grid grid-cols-1 gap-4 flex-1">
             <div className="flex justify-between items-end p-5 col-span-3 rounded-base bg-neutral-secondary-soft border border-zinc-100">
               <div className="flex flex-col gap-1">
@@ -54,6 +134,7 @@ const CreateInvoice = () => {
                 placeholder="INV-1001"
                 value={invoiceForm.invoiceNumber}
                 onChange={handleChange}
+                min={0}
                 required={true}
               />
             </label>
@@ -82,11 +163,11 @@ const CreateInvoice = () => {
                 <input
                   className="block w-full ps-9 pe-3 py-2 bg-gray-50 border border-gray-300 text-gray-900 mt-1 focus:border-primary-600 focus:ring-brand px-3 rounded  dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   datepicker=""
-                  id="issue-datepicker"
+                  id="issued-datepicker"
                   type="text"
                   name="issuedDate"
-                  value={invoiceForm.issuedDate}
-                  onChange={handleChange}
+                  // value={invoiceForm.issuedDate}
+                  // onChange={handleChange}
                   placeholder="mm/dd/yyyy"
                 />
               </div>
@@ -114,10 +195,12 @@ const CreateInvoice = () => {
                   </svg>
                 </div>
                 <input
-                  datepicker=""
-                  id="default-datepicker"
-                  type="text"
                   className="block w-full ps-9 pe-3 py-2 bg-gray-50 border border-gray-300 text-gray-900 mt-1 focus:border-primary-600 focus:ring-brand px-3 rounded  dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  datepicker=""
+                  id="due-datepicker"
+                  type="text"
+                  // value={invoiceForm.dueDate}
+                  // onChange={handleChange}
                   placeholder="mm/dd/yyyy"
                 />
               </div>
@@ -135,9 +218,10 @@ const CreateInvoice = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     type="text"
                     name="name"
+                    data-section="owner"
                     placeholder="Company Name"
-                    value={undefined}
-                    onChange={undefined}
+                    value={invoiceForm.owner.name}
+                    onChange={handleChange}
                     required={true}
                   />
                 </label>
@@ -149,9 +233,10 @@ const CreateInvoice = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     type="email"
                     name="email"
+                    data-section="owner"
                     placeholder="name@company.com"
-                    value={undefined}
-                    onChange={undefined}
+                    value={invoiceForm.owner.email}
+                    onChange={handleChange}
                   />
                 </label>
               </div>
@@ -159,9 +244,14 @@ const CreateInvoice = () => {
                 <label className="block text-sm font-medium text-gray-900 dark:text-white">
                   Address
                   <textarea
-                    rows="3"
                     className="resize-none overflow-y-auto bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    rows="3"
                     placeholder="3 road John Doe"
+                    name="address"
+                    data-section="owner"
+                    value={invoiceForm.owner.address}
+                    onChange={handleChange}
+                    required={true}
                   ></textarea>
                 </label>
               </div>
@@ -173,8 +263,9 @@ const CreateInvoice = () => {
                     type="phone"
                     name="phone"
                     placeholder="22-56-59-74"
-                    value={undefined}
-                    onChange={undefined}
+                    data-section="owner"
+                    value={invoiceForm.owner.phone}
+                    onChange={handleChange}
                   />
                 </label>
               </div>
@@ -191,8 +282,9 @@ const CreateInvoice = () => {
                     type="text"
                     name="name"
                     placeholder="Company Name"
-                    value={undefined}
-                    onChange={undefined}
+                    data-section="client"
+                    value={invoiceForm.client.name}
+                    onChange={handleChange}
                     required={true}
                   />
                 </label>
@@ -205,8 +297,9 @@ const CreateInvoice = () => {
                     type="email"
                     name="email"
                     placeholder="name@company.com"
-                    value={undefined}
-                    onChange={undefined}
+                    data-section="client"
+                    value={invoiceForm.client.email}
+                    onChange={handleChange}
                   />
                 </label>
               </div>
@@ -214,9 +307,14 @@ const CreateInvoice = () => {
                 <label className="block text-sm font-medium text-gray-900 dark:text-white">
                   Address
                   <textarea
-                    rows="3"
                     className="resize-none overflow-y-auto bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    rows="3"
                     placeholder="3 road John Doe"
+                    name="address"
+                    data-section="client"
+                    value={invoiceForm.client.address}
+                    onChange={handleChange}
+                    required={true}
                   ></textarea>
                 </label>
               </div>
@@ -228,8 +326,9 @@ const CreateInvoice = () => {
                     type="phone"
                     name="phone"
                     placeholder="22-56-59-74"
-                    value={undefined}
-                    onChange={undefined}
+                    data-section="client"
+                    value={invoiceForm.client.phone}
+                    onChange={handleChange}
                   />
                 </label>
               </div>
@@ -314,9 +413,10 @@ const CreateInvoice = () => {
                         type="text"
                         name="title"
                         placeholder="Title"
+                        data-section="items"
                         value={undefined}
                         onChange={undefined}
-                        required={true}
+                        // required={true}
                       />
                     </th>
                     <td className="px-6 py-4">
@@ -352,7 +452,7 @@ const CreateInvoice = () => {
                           aria-describedby="helper-text-explanation"
                           className="border-x-0 h-10 placeholder:text-heading text-center w-full bg-neutral-secondary-medium border-gray-300 py-2.5 placeholder:text-body"
                           placeholder="0"
-                          required
+                          // required
                         />
                         <button
                           type="button"
@@ -388,7 +488,7 @@ const CreateInvoice = () => {
                         placeholder="Price"
                         value={undefined}
                         onChange={undefined}
-                        required={true}
+                        // required={true}
                       />
                     </td>
                     <td className="px-6 py-4">
@@ -399,7 +499,7 @@ const CreateInvoice = () => {
                         placeholder="0%"
                         value={undefined}
                         onChange={undefined}
-                        required={true}
+                        // required={true}
                       />
                     </td>
                     <td className="px-8 py-4">
