@@ -1,7 +1,95 @@
-import { Plus } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
+
+import invoiceService from "../../services/invoice.service";
+import InvoiceRow from "../../components/navigation/invoices/InvoiceRow";
+import useDebounce from "../../hooks/useDebounce";
 
 const Invoices = () => {
+  const [invoices, setInvoices] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // const [searchQuery, setSearchQuery] = useState("");
+  const [filterQuery, setFilterQuery] = useState({
+    search: "",
+    status: "",
+  });
+
+  const searchQueryDebounced = useDebounce(filterQuery.search); // okay to put this here?
+
+  useEffect(() => {
+    getData();
+  }, [searchQueryDebounced]);
+
+  const handleChange = (e) => {
+    const { name, value, checked } = e.target;
+    const { section } = e.target.dataset.section;
+    console.log(section, name, checked);
+    setFilterQuery((prev) => ({
+      ...filterQuery,
+      [name]: value,
+    }));
+  };
+
+  const getData = async () => {
+    try {
+      // const response = await invoiceService.getInvoice(
+      //   "6a423237782e2cd8f0f86e80",
+      // );
+      // const body = {
+      //   status: "paid",
+      // };
+      // const response = await invoiceService.createInvoice(body);
+      // const response = await invoiceService.updateInvoice(
+      //   "6a423d23a9a59e059b2d0a80",
+      //   body,
+      // );
+      // const response = await invoiceService.updateStatusInvoice(
+      //   "6a423d23a9a59e059b2d0a80",
+      //   body,
+      // );
+      // const response = await invoiceService.deleteInvoice(
+      //   "6a423d23a9a59e059b2d0a80",
+      // );
+      const response = await invoiceService.getAllInvoices(filterQuery);
+      console.log(response);
+      setIsLoading(false);
+      setInvoices(response.data);
+    } catch (error) {
+      console.log(error.response);
+      // navigate("/error"); // internal servor error page
+    }
+  };
+
+  const totalAmount = invoices?.reduce((sum, invoice) => {
+    return sum + invoice.total;
+  }, 0);
+
+  if (isLoading) {
+    return (
+      <div role="status" className="w-fit mx-auto">
+        <svg
+          aria-hidden="true"
+          className="inline w-12 h-12 w-10 h-10 text-neutral-tertiary animate-spin fill-brand"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+        <span className="sr-only">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:ml-64 mt-14">
       <div className="flex flex-col gap-4 p-4 border border-default border-dashed rounded-base">
@@ -32,34 +120,33 @@ const Invoices = () => {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-3 h-auto rounded-base shadow-xs">
+        <div className="grid grid-cols-3">
           <section className=" dark:bg-gray-900 col-span-3">
             <div className="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4">
               <div className="flex items-center flex-1 space-x-4">
                 <h5>
                   <span className="text-gray-500">All invoices: </span>
-                  <span className="dark:text-white">20</span>
+                  <span className="dark:text-white">{invoices.length}</span>
                 </h5>
                 <h5>
                   <span className="text-gray-500">Total amount: </span>
-                  <span className="dark:text-white">$500</span>
+                  <span className="dark:text-white">
+                    ${totalAmount.toFixed(0)}
+                  </span>
                 </h5>
               </div>
-              <button
-                type="button"
-                className="flex items-center justify-center gap-1 place-self-end text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-xl text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+              <Link
+                to="new"
+                className="flex items-center cursor-pointer justify-center gap-1 place-self-end text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-xl text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
               >
                 <Plus size={18} />
                 Create Invoice
-              </button>
+              </Link>
             </div>
             <div className="dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
               <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div className="w-full md:w-1/2">
                   <form className="flex items-center">
-                    <label htmlFor="simple-search" className="sr-only">
-                      Search
-                    </label>
                     <div className="relative w-full">
                       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <svg
@@ -77,11 +164,12 @@ const Invoices = () => {
                         </svg>
                       </div>
                       <input
-                        type="text"
-                        id="simple-search"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        type="text"
+                        name="search"
                         placeholder="Search"
-                        required=""
+                        value={filterQuery.search}
+                        onChange={handleChange}
                       />
                     </div>
                   </form>
@@ -175,10 +263,13 @@ const Invoices = () => {
                       >
                         <li className="flex items-center">
                           <input
-                            id="paid"
-                            type="checkbox"
-                            value=""
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                            id="paid"
+                            name="paid"
+                            data-section="status"
+                            type="checkbox"
+                            value={filterQuery.status.paid}
+                            onChange={handleChange}
                           />
                           <label
                             htmlFor="paid"
@@ -189,13 +280,16 @@ const Invoices = () => {
                         </li>
                         <li className="flex items-center">
                           <input
-                            id="Unpaid"
-                            type="checkbox"
-                            value=""
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                            id="unpaid"
+                            name="unpaid"
+                            data-section="status"
+                            type="checkbox"
+                            value={filterQuery.status.unpaid}
+                            onChange={handleChange}
                           />
                           <label
-                            htmlFor="Unpaid"
+                            htmlFor="unpaid"
                             className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100"
                           >
                             Unpaid (16)
@@ -203,13 +297,16 @@ const Invoices = () => {
                         </li>
                         <li className="flex items-center">
                           <input
-                            id="Overdue"
-                            type="checkbox"
-                            value=""
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                            id="overdue"
+                            name="overdue"
+                            data-section="status"
+                            type="checkbox"
+                            value={filterQuery.status.overdue}
+                            onChange={handleChange}
                           />
                           <label
-                            htmlFor="Overdue"
+                            htmlFor="overdue"
                             className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100"
                           >
                             Overdue (2)
@@ -217,10 +314,13 @@ const Invoices = () => {
                         </li>
                         <li className="flex items-center">
                           <input
-                            id="pending"
-                            type="checkbox"
-                            value=""
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                            id="pending"
+                            name="pending"
+                            data-section="status"
+                            type="checkbox"
+                            value={filterQuery.status.pending}
+                            onChange={handleChange}
                           />
                           <label
                             htmlFor="pending"
@@ -259,7 +359,7 @@ const Invoices = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-blue-500">
+                    {/* <tr className="border-b dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-blue-500">
                       <th
                         scope="row"
                         className="px-8 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
@@ -332,8 +432,11 @@ const Invoices = () => {
                           </div>
                         </div>
                       </td>
-                    </tr>
-                    <tr className="border-b dark:border-gray-700">
+                    </tr> */}
+                    {invoices.map((invoice) => {
+                      return <InvoiceRow key={invoice._id} obj={invoice} />;
+                    })}
+                    {/* <tr className="border-b dark:border-gray-700">
                       <th
                         scope="row"
                         className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
@@ -908,7 +1011,7 @@ const Invoices = () => {
                           </div>
                         </div>
                       </td>
-                    </tr>
+                    </tr> */}
                   </tbody>
                 </table>
               </div>
