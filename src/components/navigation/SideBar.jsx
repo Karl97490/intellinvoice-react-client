@@ -183,7 +183,7 @@ const SideBar = () => {
                 <ul id="dropdown-clients" className="hidden py-2 space-y-2">
                   <li>
                     <Link
-                      to="#"
+                      to="/clients"
                       className="pl-10 flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
                     >
                       <span className="flex-1 whitespace-nowrap">List All</span>
@@ -194,7 +194,7 @@ const SideBar = () => {
                   </li>
                   <li>
                     <Link
-                      to="#"
+                      to="/clients/new"
                       className="pl-10 flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
                     >
                       <span className="">
