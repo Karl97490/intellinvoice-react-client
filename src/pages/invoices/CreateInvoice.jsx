@@ -6,6 +6,7 @@ import { useContext, useState } from "react";
 import authService from "../../services/auth.service";
 import invoiceService from "../../services/invoice.service";
 import { AuthContext } from "../../context/auth.context";
+import { Datepicker } from "flowbite-react";
 
 const CreateInvoice = () => {
   const { userId } = useContext(AuthContext);
@@ -34,15 +35,14 @@ const CreateInvoice = () => {
       },
     ],
     status: "unpaid",
-    issuedDate: "",
-    dueDate: "",
+    issuedDate: new Date(),
+    dueDate: new Date(),
     total: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     const section = e.target.dataset.section;
-    // console.log(section, name, value);
     if (section) {
       setInvoiceForm((prev) => ({
         ...prev,
@@ -53,10 +53,17 @@ const CreateInvoice = () => {
       }));
       return;
     }
-
     setInvoiceForm((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleChangeDate = (date, field) => {
+    // console.log("CHANGE:", date.toISOString(), field);
+    setInvoiceForm((prev) => ({
+      ...prev,
+      [field]: date,
     }));
   };
 
@@ -67,6 +74,8 @@ const CreateInvoice = () => {
     const body = {
       ownerId: userId,
       ...invoiceForm,
+      issuedDate: invoiceForm?.issuedDate.toISOString(),
+      dueDate: invoiceForm?.dueDate.toISOString(),
     };
     try {
       const response = await invoiceService.createInvoice(body);
@@ -138,73 +147,24 @@ const CreateInvoice = () => {
                 required={true}
               />
             </label>
-            <label className="block text-base font-medium text-gray-900 w-full">
-              Issued Date
-              <div className="relative max-w-sm">
-                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-body"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  className="block w-full ps-9 pe-3 py-2 bg-gray-50 border border-gray-300 text-gray-900 mt-1 focus:border-primary-600 focus:ring-brand px-3 rounded  dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  datepicker=""
-                  id="issued-datepicker"
-                  type="text"
-                  name="issuedDate"
-                  // value={invoiceForm.issuedDate}
-                  // onChange={handleChange}
-                  placeholder="mm/dd/yyyy"
+            <div>
+              <label className="block text-base font-medium text-gray-900 w-full">
+                Issue date
+                <Datepicker
+                  value={invoiceForm.issuedDate}
+                  onChange={(date) => handleChangeDate(date, "issuedDate")}
                 />
-              </div>
-            </label>
-            <label className="block text-base font-medium text-gray-900 w-full">
-              Due Date
-              <div className="relative max-w-sm">
-                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-body"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Zm3-7h.01v.01H8V13Zm4 0h.01v.01H12V13Zm4 0h.01v.01H16V13Zm-8 4h.01v.01H8V17Zm4 0h.01v.01H12V17Zm4 0h.01v.01H16V17Z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  className="block w-full ps-9 pe-3 py-2 bg-gray-50 border border-gray-300 text-gray-900 mt-1 focus:border-primary-600 focus:ring-brand px-3 rounded  dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  datepicker=""
-                  id="due-datepicker"
-                  type="text"
-                  // value={invoiceForm.dueDate}
-                  // onChange={handleChange}
-                  placeholder="mm/dd/yyyy"
+              </label>
+            </div>
+            <div>
+              <label className="block text-base font-medium text-gray-900 w-full">
+                Due date
+                <Datepicker
+                  value={invoiceForm.dueDate}
+                  onChange={(date) => handleChangeDate(date, "dueDate")}
                 />
-              </div>
-            </label>
+              </label>
+            </div>
           </div>
           <div className="grid grid-cols-[1fr] xl:grid-cols-2 gap-4 flex-1">
             <div className="space-y-1 md:space-y-2 p-6 sm:p-8 bg-white border border-zinc-200 rounded-base shadow-xs">
