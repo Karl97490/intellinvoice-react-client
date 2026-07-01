@@ -2,20 +2,40 @@ import { NavLink, Link } from "react-router-dom";
 import { Eye, Plus } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { PencilLine } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/auth.context";
 import userService from "../../services/user.services";
 
 const User = () => {
-  // const { userId } = useContext(AuthContext);
-  const [isLoading, setIsLoading] = useState(false);
-  // const [clientForm, setClientForm] = useState({
-  //   name: "",
-  //   email: "",
-  //   phone: "",
-  //   address: "",
-  // });
+  const { userId } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = us;
+  const [userForm, setUserForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    company: {
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+    },
+  });
 
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
+    try {
+      const response = await userService.getClient(userId);
+      console.log(response);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error.response);
+      // navigate("/error-page")
+    }
+  };
   const handleChange = (e) => {
     // const { name, value } = e.target;
     // setClientForm((prev) => ({
