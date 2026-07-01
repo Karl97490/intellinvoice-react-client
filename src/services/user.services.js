@@ -15,10 +15,7 @@ class UserService extends Service {
   updateUserInfos = (id, requestBody) => {
     return this.service.patch(this.urlPrefixe + `/${id}`, requestBody);
   };
-  // PATCH /api/users/email/:userId
-  updateUserEmail = (id, requestBody) => {
-    return this.service.patch(this.urlPrefixe + `/email/${id}`, requestBody);
-  };
+
   // PATCH /api/users/password/:userId
   updateUserPassword = (id, requestBody) => {
     return this.service.patch(this.urlPrefixe + `/password/${id}`, requestBody);

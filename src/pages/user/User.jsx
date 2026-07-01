@@ -2,44 +2,66 @@ import { NavLink, Link } from "react-router-dom";
 import { Eye, Plus } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { PencilLine } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/auth.context";
 import userService from "../../services/user.services";
 
 const User = () => {
-  // const { userId } = useContext(AuthContext);
-  const [isLoading, setIsLoading] = useState(false);
-  // const [clientForm, setClientForm] = useState({
-  //   name: "",
-  //   email: "",
-  //   phone: "",
-  //   address: "",
-  // });
+  const { userId } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userForm, setUserForm] = useState(null);
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   const handleChange = (e) => {
-    // const { name, value } = e.target;
-    // setClientForm((prev) => ({
-    //   ...prev,
-    //   [name]: value,
-    // }));
+    const { name, value } = e.target;
+    const section = e.target.dataset.section;
+    if (section) {
+      setUserForm((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [name]: value,
+        },
+      }));
+      return;
+    }
+    setUserForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const getData = async () => {
+    try {
+      const response = await userService.getClient(userId);
+      console.log(response);
+      setIsLoading(false);
+      setUserForm(response.data);
+    } catch (error) {
+      console.log(error.response);
+      // navigate("/error-page");
+    }
   };
 
   const handleSubmit = async (e) => {
-    // console.log("submitting...");
-    // e.preventDefault();
-    // setIsLoading(true);
-    // const body = {
-    //   ownerId: userId,
-    //   ...clientForm,
-    // };
-    // try {
-    //   const response = await clientService.createClient(body);
-    //   console.log(response);
-    //   setIsLoading(false);
-    // } catch (error) {
-    //   console.log(error.response);
-    //   setIsLoading(false);
-    // }
+    console.log("submitting...");
+    e.preventDefault();
+    setIsLoading(true);
+    const body = {
+      ...userForm,
+    };
+    console.log(body);
+    try {
+      const response = await userService.updateUserInfos(userId, body);
+      console.log(response);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error.response);
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -69,7 +91,7 @@ const User = () => {
   return (
     <div className="p-4 sm:ml-64 mt-14">
       <div className="p-4 border border-default border-dashed rounded-base w-[80%] mx-auto">
-        <form onSubmit="" className="flex flex-col">
+        <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="grid grid-cols-1 gap-4 flex-1">
             <div className="flex justify-between items-end p-5 col-span-3 rounded-t bg-neutral-secondary-soft border border-zinc-100">
               <div className="flex flex-col gap-1">
@@ -106,10 +128,12 @@ const User = () => {
                     First name
                   </label>
                   <input
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     id="firstName"
                     name="firstName"
                     type="text"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    value={userForm?.firstName || ""}
+                    onChange={handleChange}
                   />
                 </div>
                 <div>
@@ -120,10 +144,12 @@ const User = () => {
                     Last name
                   </label>
                   <input
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     id="lastName"
                     name="lastName"
                     type="text"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    value={userForm?.lastName || ""}
+                    onChange={handleChange}
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -139,6 +165,8 @@ const User = () => {
                     type="email"
                     className="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
                     disabled
+                    value={userForm?.email || ""}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -165,10 +193,13 @@ const User = () => {
                     Company name
                   </label>
                   <input
-                    id="companyName"
-                    name="companyName"
-                    type="text"
                     className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+                    id="companyName"
+                    name="name"
+                    type="text"
+                    data-section="company"
+                    value={userForm?.company?.name || ""}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -180,10 +211,13 @@ const User = () => {
                     Company email
                   </label>
                   <input
-                    id="businessEmail"
-                    name="businessEmail"
-                    type="email"
                     className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+                    id="companyEmail"
+                    name="email"
+                    type="email"
+                    data-section="company"
+                    value={userForm?.company?.email || ""}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -195,10 +229,13 @@ const User = () => {
                     Company phone
                   </label>
                   <input
-                    id="businessPhone"
-                    name="businessPhone"
-                    type="tel"
                     className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
+                    id="companyphone"
+                    name="phone"
+                    type="tel"
+                    data-section="company"
+                    value={userForm?.company?.phone || ""}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -210,11 +247,14 @@ const User = () => {
                     Company address
                   </label>
                   <textarea
+                    className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
                     id="address"
                     name="address"
                     rows="3"
-                    className="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5"
                     placeholder="Street, ZIP code, City, Country"
+                    data-section="company"
+                    value={userForm?.company?.address || ""}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
