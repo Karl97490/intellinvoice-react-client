@@ -3,9 +3,8 @@ import { Eye, Plus } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { PencilLine } from "lucide-react";
 import { useContext, useState } from "react";
-import authService from "../../services/auth.service";
-import clientService from "../../services/client.services";
 import { AuthContext } from "../../context/auth.context";
+import clientService from "../../services/client.services";
 
 const CreateClient = () => {
   const { userId } = useContext(AuthContext);
@@ -89,7 +88,7 @@ const CreateClient = () => {
                   type="submit"
                   className="flex cursor-pointer items-center max-h-15 max-w-30 justify-center gap-1 text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-xl text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
                 >
-                  Create Client
+                  Save Client
                 </button>
               </h1>
               <div>

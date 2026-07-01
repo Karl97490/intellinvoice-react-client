@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 import invoiceService from "../../services/invoice.service";
-import InvoiceRow from "../../components/navigation/invoices/InvoiceRow";
+import InvoiceRow from "../../components/invoices/InvoiceRow";
 import useDebounce from "../../hooks/useDebounce";
 
 const Invoices = () => {

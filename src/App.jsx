@@ -17,6 +17,7 @@ import Invoices from "./pages/invoices/Invoices";
 import CreateInvoice from "./pages/invoices/CreateInvoice";
 import Clients from "./pages/clients/Clients";
 import CreateClient from "./pages/clients/CreateClient";
+import User from "./pages/user/User";
 
 import OnlyPrivate from "./pages/auth/OnlyPrivate";
 import OnlyPublic from "./pages/auth/OnlyPublic";
@@ -104,6 +105,14 @@ function App() {
             element={
               <OnlyPrivate>
                 <CreateClient />
+              </OnlyPrivate>
+            }
+          ></Route>
+          <Route
+            path="/profile"
+            element={
+              <OnlyPrivate>
+                <User />
               </OnlyPrivate>
             }
           ></Route>
