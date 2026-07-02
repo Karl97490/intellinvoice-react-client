@@ -6,6 +6,11 @@ import invoiceService from "../../services/invoice.service";
 import InvoiceRow from "../../components/invoices/InvoiceRow";
 import useDebounce from "../../hooks/useDebounce";
 
+// import { Dropdown } from "flowbite-react";
+import * as Flowbite from "flowbite-react";
+console.log(Flowbite);
+// console.log(Flowbite.DropdownItem);
+
 const Invoices = () => {
   const [invoices, setInvoices] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,21 +18,28 @@ const Invoices = () => {
   // const [searchQuery, setSearchQuery] = useState("");
   const [filterQuery, setFilterQuery] = useState({
     search: "",
-    status: "",
+    issuedDate: "",
+    dueDate: "",
+    status: {
+      paid: false,
+      unpaid: false,
+      overdue: false,
+      pending: false,
+    },
   });
 
-  const searchQueryDebounced = useDebounce(filterQuery.search); // okay to put this here?
+  // const searchQueryDebounced = useDebounce(filterQuery.search); // okay to put this here?
 
   useEffect(() => {
     getData();
-  }, [searchQueryDebounced]);
+  }, [filterQuery.search]);
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
-    const { section } = e.target.dataset.section;
-    console.log(section, name, checked);
+    const { name, value } = e.target;
+    // const { section } = e.target.dataset.section;
+    // console.log(section, name);
     setFilterQuery((prev) => ({
-      ...filterQuery,
+      ...prev,
       [name]: value,
     }));
   };
@@ -53,6 +65,7 @@ const Invoices = () => {
       //   "6a423d23a9a59e059b2d0a80",
       // );
       const response = await invoiceService.getAllInvoices(filterQuery);
+      console.log(filterQuery);
       console.log(response);
       setIsLoading(false);
       setInvoices(response.data);
@@ -229,7 +242,7 @@ const Invoices = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 w-full md:w-auto">
-                    <button
+                    {/* <button
                       id="filterDropdownButton"
                       data-dropdown-toggle="filterDropdown"
                       className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
@@ -249,8 +262,68 @@ const Invoices = () => {
                           d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                         />
                       </svg>
-                    </button>
-                    <div
+                    </button> */}
+                    {/* <Dropdown
+                      label="Filter by status"
+                      dismissOnClick={false}
+                      renderTrigger={() => (
+                        <button
+                          type="button"
+                          className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                        >
+                          Filter by status
+                        </button>
+                      )}
+                    >
+                      <Dropdown.Item as="div">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="paid"
+                            checked={filterQuery.status.paid}
+                            onChange={handleChange}
+                          />
+                          Paid
+                        </label>
+                      </Dropdown.Item>
+
+                      <Dropdown.Item as="div">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="unpaid"
+                            checked={filterQuery.status.paid}
+                            onChange={handleChange}
+                          />
+                          Unpaid
+                        </label>
+                      </Dropdown.Item>
+
+                      <Dropdown.Item as="div">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="overdue"
+                            checked={filterQuery.status.overdue}
+                            onChange={handleChange}
+                          />
+                          Overdue
+                        </label>
+                      </Dropdown.Item>
+
+                      <Dropdown.Item as="div">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="pending"
+                            checked={filterQuery.status.pending}
+                            onChange={handleChange}
+                          />
+                          Pending
+                        </label>
+                      </Dropdown.Item>
+                    </Dropdown> */}
+                    {/* <div
                       id="filterDropdown"
                       className="z-10 hidden w-48 p-3 bg-white rounded-lg shadow dark:bg-gray-700"
                     >
@@ -266,8 +339,8 @@ const Invoices = () => {
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             id="paid"
                             name="paid"
-                            data-section="status"
                             type="checkbox"
+                            data-section="status"
                             value={filterQuery.status.paid}
                             onChange={handleChange}
                           />
@@ -283,8 +356,8 @@ const Invoices = () => {
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             id="unpaid"
                             name="unpaid"
-                            data-section="status"
                             type="checkbox"
+                            data-section="status"
                             value={filterQuery.status.unpaid}
                             onChange={handleChange}
                           />
@@ -300,8 +373,8 @@ const Invoices = () => {
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             id="overdue"
                             name="overdue"
-                            data-section="status"
                             type="checkbox"
+                            data-section="status"
                             value={filterQuery.status.overdue}
                             onChange={handleChange}
                           />
@@ -317,8 +390,8 @@ const Invoices = () => {
                             className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             id="pending"
                             name="pending"
-                            data-section="status"
                             type="checkbox"
+                            data-section="status"
                             value={filterQuery.status.pending}
                             onChange={handleChange}
                           />
@@ -330,7 +403,7 @@ const Invoices = () => {
                           </label>
                         </li>
                       </ul>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -359,6 +432,9 @@ const Invoices = () => {
                     </tr>
                   </thead>
                   <tbody>
+                    {invoices.map((invoice) => {
+                      return <InvoiceRow key={invoice._id} obj={invoice} />;
+                    })}
                     {/* <tr className="border-b dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-blue-500">
                       <th
                         scope="row"
@@ -433,9 +509,6 @@ const Invoices = () => {
                         </div>
                       </td>
                     </tr> */}
-                    {invoices.map((invoice) => {
-                      return <InvoiceRow key={invoice._id} obj={invoice} />;
-                    })}
                     {/* <tr className="border-b dark:border-gray-700">
                       <th
                         scope="row"

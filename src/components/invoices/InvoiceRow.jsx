@@ -7,14 +7,11 @@ const InvoiceRow = ({ obj: invoice }) => {
         scope="row"
         className="px-8 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
       >
-        Client ##
-        <span className="block text-gray-600">
-          #INV-{invoice.invoiceNumber}
-        </span>
+        {invoice.client.name}
       </th>
 
-      <td className="px-8 py-3">??</td>
-      <td className="px-8 py-3 font-body">${invoice.total}</td>
+      <td className="px-8 py-3">#INV-{invoice.invoiceNumber}</td>
+      <td className="px-8 py-3 font-body">${invoice.total ?? 0}</td>
       <td className="px-8 py-3">
         <StatusBadge status={invoice.status} />
         {/* <span className="inline-block w-17 text-center bg-success-soft border border-success-subtle text-fg-success text-xs font-medium px-2 py-1 rounded-full">
