@@ -2,16 +2,26 @@ import { NavLink, Link } from "react-router-dom";
 import { Eye, Plus } from "lucide-react";
 import { Trash2 } from "lucide-react";
 import { PencilLine } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import authService from "../../services/auth.service";
 import invoiceService from "../../services/invoice.service";
 import { AuthContext } from "../../context/auth.context";
 import { Datepicker } from "flowbite-react";
 import ItemsForm from "../../components/invoices/ItemsForm";
+import itemService from "../../services/item.services";
 
 const CreateInvoice = () => {
-  const { userId } = useContext(AuthContext);
+  // const { userId } = useContext(AuthContext);
+  const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [items, setItems] = useState([
+    {
+      title: "Web Dev",
+      quantity: 5,
+      tax: 2.5,
+      unitPrice: 2000,
+    },
+  ]);
   const [invoiceForm, setInvoiceForm] = useState({
     invoiceNumber: "",
     owner: {
@@ -26,20 +36,59 @@ const CreateInvoice = () => {
       address: "",
       phone: "",
     },
-    items: [
-      {
-        title: "Web Dev",
-        type: "product",
-        quantity: 1,
-        taxRate: 2.5,
-        unitPrice: 600,
-      },
-    ],
+    items,
     status: "unpaid",
     issuedDate: new Date(),
     dueDate: new Date(),
     total: "",
   });
+
+  // useEffect(() => {
+  //   getData();
+  // }, []);
+
+  // const getData = async () => {
+  //   try {
+  //     const response = await itemService.getAllItems();
+  //     console.log(response);
+  //     setIsLoading(false);
+  //     setItems(response.data);
+  //   } catch (error) {
+  //     console.log(error.response);
+  //     // navigate("/error-page");
+  //   }
+  // };
+
+  const handleChangeItem = (name, value, itemId) => {
+    console.log(name, value);
+    setItems((prev) => {
+      const updatedItems = [...prev];
+      updatedItems[itemId] = {
+        ...updatedItems[itemId],
+        [name]: value,
+      };
+      return updatedItems;
+    });
+  };
+
+  const addItem = () => {
+    setItems((prev) => [
+      ...prev,
+      {
+        title: "",
+        quantity: "",
+        tax: "",
+        unitPrice: "",
+      },
+    ]);
+  };
+
+  const deleteItem = (itemId) => {
+    setItems((prev) => {
+      const updatedItems = prev.toSpliced(itemId, 1);
+      return updatedItems;
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,26 +118,28 @@ const CreateInvoice = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("submitting...");
+    console.log("creating...");
     e.preventDefault();
-    setIsLoading(true);
+    setIsCreating(true);
     const body = {
-      ownerId: userId,
       ...invoiceForm,
       issuedDate: invoiceForm?.issuedDate.toISOString(),
       dueDate: invoiceForm?.dueDate.toISOString(),
+      items,
     };
+    console.log(body.items);
     try {
       const response = await invoiceService.createInvoice(body);
       console.log(response);
-      setIsLoading(false);
+      setIsCreating(false);
     } catch (error) {
       console.log(error.response);
-      setIsLoading(false);
+      // error message
+      setIsCreating(false);
     }
   };
 
-  if (isLoading) {
+  if (isCreating || isLoading) {
     return (
       <div role="status" className="w-fit mx-auto">
         <svg
@@ -295,7 +346,13 @@ const CreateInvoice = () => {
               </div>
             </div>
           </div>
-          <ItemsForm />
+          <ItemsForm
+            setItems={setItems}
+            items={items}
+            handleChange={handleChangeItem}
+            addItem={addItem}
+            deleteItem={deleteItem}
+          />
           <div className="grid grid-cols-2 gap-6 ">
             <div className="flex items-center justify-center h-60 bg-white border border-zinc-200 rounded-base shadow-xs">
               <p className="text-fg-disabled">
