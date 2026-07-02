@@ -1,6 +1,8 @@
 import StatusBadge from "./StatusBadge";
+import { Dropdown, DropdownDivider, DropdownItem } from "flowbite-react";
+import { Link } from "react-router-dom";
 
-const InvoiceRow = ({ obj: invoice }) => {
+const InvoiceRow = ({ obj: invoice, onDelete }) => {
   return (
     <tr className="border-b dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-blue-500">
       <th
@@ -22,7 +24,32 @@ const InvoiceRow = ({ obj: invoice }) => {
         {new Date(invoice.issuedDate).toLocaleDateString("en-US")}
       </td>
       <td className="px-3 py-3 text-center">
-        <button
+        <Dropdown
+          label=""
+          dismissOnClick={true}
+          renderTrigger={() => (
+            <button className="cursor-pointer inline-flex items-center p-0.5 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+              </svg>
+            </button>
+          )}
+        >
+          <DropdownItem>
+            <Link to={`details/${invoice._id}`}>Show</Link>
+          </DropdownItem>
+          <DropdownItem>
+            <Link to={`edit/${invoice._id}`}>Edit</Link>
+          </DropdownItem>
+          <DropdownItem>Download</DropdownItem>
+
+          <DropdownDivider />
+
+          <DropdownItem onClick={() => onDelete(invoice._id)}>
+            Delete
+          </DropdownItem>
+        </Dropdown>
+        {/* <button
           id={`${invoice.invoiceNumber}-dropdown-button`}
           data-dropdown-toggle={`${invoice.invoiceNumber}-dropdown`}
           className="inline-flex items-center p-0.5 cursor-pointer text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
@@ -79,7 +106,7 @@ const InvoiceRow = ({ obj: invoice }) => {
               Delete
             </a>
           </div>
-        </div>
+        </div> */}
       </td>
     </tr>
   );

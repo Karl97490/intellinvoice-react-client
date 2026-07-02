@@ -15,6 +15,7 @@ import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import Dashboard from "./pages/dasboard/Dasboard";
 import Invoices from "./pages/invoices/Invoices";
+import InvoiceDetails from "./pages/invoices/InvoiceDetails";
 import CreateInvoice from "./pages/invoices/CreateInvoice";
 import Clients from "./pages/clients/Clients";
 import CreateClient from "./pages/clients/CreateClient";
@@ -22,6 +23,7 @@ import User from "./pages/user/User";
 
 import OnlyPrivate from "./pages/auth/OnlyPrivate";
 import OnlyPublic from "./pages/auth/OnlyPublic";
+import EditInvoice from "./pages/invoices/EditInvoice";
 
 function App() {
   useEffect(() => {
@@ -87,10 +89,26 @@ function App() {
             }
           ></Route>
           <Route
+            path="/invoices/details/:invoiceId"
+            element={
+              <OnlyPrivate>
+                <InvoiceDetails />
+              </OnlyPrivate>
+            }
+          ></Route>
+          <Route
             path="/invoices/new"
             element={
               <OnlyPrivate>
                 <CreateInvoice />
+              </OnlyPrivate>
+            }
+          ></Route>
+          <Route
+            path="/invoices/edit/:invoiceId"
+            element={
+              <OnlyPrivate>
+                <EditInvoice />
               </OnlyPrivate>
             }
           ></Route>

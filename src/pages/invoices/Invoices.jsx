@@ -6,7 +6,7 @@ import invoiceService from "../../services/invoice.service";
 import InvoiceRow from "../../components/invoices/InvoiceRow";
 import useDebounce from "../../hooks/useDebounce";
 
-import { Datepicker } from "flowbite-react";
+import { Datepicker, DropdownItem } from "flowbite-react";
 import { Dropdown } from "flowbite-react";
 import { Pagination } from "flowbite-react";
 
@@ -37,12 +37,26 @@ const Invoices = () => {
 
   useEffect(() => {
     getData();
-  }, [filterQuery.search, filterQuery.issuedDate, filterQuery.dueDate]);
+  }, [
+    filterQuery.search,
+    filterQuery.issuedDate,
+    filterQuery.dueDate,
+    filterQuery.status,
+  ]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    console.log(section, name);
-    // const { section } = e.target.dataset.section;
+    const { name, value, checked } = e.target;
+    const section = e.target.dataset.section;
+    if (section === "status") {
+      setFilterQuery((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [name]: checked,
+        },
+      }));
+      return;
+    }
     setFilterQuery((prev) => ({
       ...prev,
       [name]: value,
@@ -85,6 +99,18 @@ const Invoices = () => {
     } catch (error) {
       console.log(error.response);
       // navigate("/error"); // internal servor error page
+    }
+  };
+
+  const handleDelete = async (invoiceId) => {
+    console.log("delete invoice with id: " + invoiceId);
+    try {
+      const response = await invoiceService.deleteInvoice(invoiceId);
+      console.log(response);
+      getData();
+    } catch (error) {
+      console.log(error.response);
+      // navigate("error-response");
     }
   };
 
@@ -212,27 +238,6 @@ const Invoices = () => {
                     />
                   </div>
                   <div className="flex items-center space-x-3 w-full md:w-auto">
-                    {/* <button
-                      id="filterDropdownButton"
-                      data-dropdown-toggle="filterDropdown"
-                      className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                      type="button"
-                    >
-                      Filter by status
-                      <svg
-                        className="-mr-1 ml-1.5 w-5 h-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                      >
-                        <path
-                          clipRule="evenodd"
-                          fillRule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        />
-                      </svg>
-                    </button> */}
                     <Dropdown
                       label="Filter by status"
                       dismissOnClick={false}
@@ -245,135 +250,62 @@ const Invoices = () => {
                         </button>
                       )}
                     >
-                      <Dropdown.Item as="div">
+                      <DropdownItem as="div">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
+                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             type="checkbox"
                             name="paid"
+                            data-section="status"
                             checked={filterQuery.status.paid}
                             onChange={handleChange}
                           />
                           Paid
                         </label>
-                      </Dropdown.Item>
+                      </DropdownItem>
 
-                      <Dropdown.Item as="div">
+                      <DropdownItem as="div">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
+                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             type="checkbox"
                             name="unpaid"
-                            checked={filterQuery.status.paid}
+                            data-section="status"
+                            checked={filterQuery.status.unpaid}
                             onChange={handleChange}
                           />
                           Unpaid
                         </label>
-                      </Dropdown.Item>
+                      </DropdownItem>
 
-                      <Dropdown.Item as="div">
+                      <DropdownItem as="div">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
+                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             type="checkbox"
                             name="overdue"
+                            data-section="status"
                             checked={filterQuery.status.overdue}
                             onChange={handleChange}
                           />
                           Overdue
                         </label>
-                      </Dropdown.Item>
+                      </DropdownItem>
 
-                      <Dropdown.Item as="div">
+                      <DropdownItem as="div">
                         <label className="flex items-center gap-2 cursor-pointer">
                           <input
+                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                             type="checkbox"
                             name="pending"
+                            data-section="status"
                             checked={filterQuery.status.pending}
                             onChange={handleChange}
                           />
                           Pending
                         </label>
-                      </Dropdown.Item>
+                      </DropdownItem>
                     </Dropdown>
-                    {/* <div
-                      id="filterDropdown"
-                      className="z-10 hidden w-48 p-3 bg-white rounded-lg shadow dark:bg-gray-700"
-                    >
-                      <h6 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">
-                        Category
-                      </h6>
-                      <ul
-                        className="space-y-2 text-sm"
-                        aria-labelledby="filterDropdownButton"
-                      >
-                        <li className="flex items-center">
-                          <input
-                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                            id="paid"
-                            name="paid"
-                            type="checkbox"
-                            data-section="status"
-                            value={filterQuery.status.paid}
-                            onChange={handleChange}
-                          />
-                          <label
-                            htmlFor="paid"
-                            className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100"
-                          >
-                            Paid (4)
-                          </label>
-                        </li>
-                        <li className="flex items-center">
-                          <input
-                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                            id="unpaid"
-                            name="unpaid"
-                            type="checkbox"
-                            data-section="status"
-                            value={filterQuery.status.unpaid}
-                            onChange={handleChange}
-                          />
-                          <label
-                            htmlFor="unpaid"
-                            className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100"
-                          >
-                            Unpaid (16)
-                          </label>
-                        </li>
-                        <li className="flex items-center">
-                          <input
-                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                            id="overdue"
-                            name="overdue"
-                            type="checkbox"
-                            data-section="status"
-                            value={filterQuery.status.overdue}
-                            onChange={handleChange}
-                          />
-                          <label
-                            htmlFor="overdue"
-                            className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100"
-                          >
-                            Overdue (2)
-                          </label>
-                        </li>
-                        <li className="flex items-center">
-                          <input
-                            className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-                            id="pending"
-                            name="pending"
-                            type="checkbox"
-                            data-section="status"
-                            value={filterQuery.status.pending}
-                            onChange={handleChange}
-                          />
-                          <label
-                            htmlFor="pending"
-                            className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100"
-                          >
-                            Pending (0)
-                          </label>
-                        </li>
-                      </ul>
-                    </div> */}
                   </div>
                 </div>
               </div>
@@ -403,7 +335,13 @@ const Invoices = () => {
                   </thead>
                   <tbody>
                     {invoices.map((invoice) => {
-                      return <InvoiceRow key={invoice._id} obj={invoice} />;
+                      return (
+                        <InvoiceRow
+                          key={invoice._id}
+                          obj={invoice}
+                          onDelete={handleDelete}
+                        />
+                      );
                     })}
                   </tbody>
                 </table>
@@ -422,80 +360,6 @@ const Invoices = () => {
                   showIcons
                 />
               </nav>
-              {/* <nav
-                className="flex items-center flex-column flex-wrap md:flex-row justify-between p-4"
-                aria-label="Table navigation"
-              >
-                <span className="text-sm font-normal text-gray-500 mb-4 md:mb-0 block w-full md:inline md:w-auto">
-                  Showing{" "}
-                  <span className="font-semibold text-heading dark:text-white">
-                    1-10
-                  </span>{" "}
-                  of{" "}
-                  <span className="font-semibold text-heading dark:text-white">
-                    20
-                  </span>
-                </span>
-                <ul className="flex -space-x-px text-sm">
-                  <li>
-                    <a
-                      href="#"
-                      className="flex items-center justify-center text-gray-500 bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-s-base text-sm px-3 h-9 focus:outline-none"
-                    >
-                      Previous
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium text-sm w-9 h-9 focus:outline-none"
-                    >
-                      1
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium text-sm w-9 h-9 focus:outline-none"
-                    >
-                      2
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      aria-current="page"
-                      className="flex items-center justify-center text-fg-brand bg-brand-softer box-border border border-default-medium hover:bg-brand-soft hover:text-fg-brand font-medium text-sm w-9 h-9 focus:outline-none"
-                    >
-                      3
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium text-sm w-9 h-9 focus:outline-none"
-                    >
-                      ...
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium text-sm w-9 h-9 focus:outline-none"
-                    >
-                      5
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading font-medium rounded-e-base text-sm px-3 h-9 focus:outline-none"
-                    >
-                      Next
-                    </a>
-                  </li>
-                </ul>
-              </nav> */}
             </div>
           </section>
         </div>
