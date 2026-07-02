@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import "./App.css";
 
 import { initFlowbite } from "flowbite";
+import Test from "./components/Test";
 
 import { AuthContext } from "./context/auth.context";
 import authService from "./services/auth.service";
@@ -44,6 +45,7 @@ function App() {
     <>
       <Routes>
         <Route element={<Layout />}>
+          <Route path="/test" element={<Test />}></Route>
           <Route
             path="/"
             element={
