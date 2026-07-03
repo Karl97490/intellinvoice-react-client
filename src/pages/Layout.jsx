@@ -12,8 +12,6 @@ const Layout = () => {
       <main className="flex-1 container mx-auto py-0 place-content-center">
         <Outlet />
       </main>
-
-      <Footer />
     </div>
   );
 };
