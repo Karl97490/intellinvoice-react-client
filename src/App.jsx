@@ -4,7 +4,7 @@ import "./App.css";
 import { initFlowbite } from "flowbite";
 
 import { Routes, Route } from "react-router-dom";
-
+import { InvoicesProvider } from "./context/invoices.context";
 import Layout from "./pages/Layout";
 import HomePage from "./pages/landing/HomePage";
 import Login from "./pages/auth/Login";
@@ -31,7 +31,6 @@ function App() {
       <InvoicesProvider>
         <Routes>
           <Route element={<Layout />}>
-            <Route path="/test" element={<Test />}></Route>
             <Route
               path="/"
               element={
