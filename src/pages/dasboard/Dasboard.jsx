@@ -4,8 +4,63 @@ import { LayoutDashboard } from "lucide-react";
 import { BarChart3 } from "lucide-react";
 import { Eye } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
+import RecentInvoiceRow from "../../components/invoices/RecentInvoiceRow";
+import { useEffect, useState } from "react";
+import invoiceService from "../../services/invoice.service";
+import { useStableMemo } from "flowbite-react/helpers/resolve-theme";
 
 const Dashboard = () => {
+  const [recentInvoices, setRecentInvoices] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalInvoices: 0,
+    totalPaid: 0,
+    totalUnpaid: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const limit = 5;
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
+    try {
+      const recentResponse = await invoiceService.getAllInvoices({ limit });
+      const statsResponse = await invoiceService.getInvoicesStats();
+      console.log(statsResponse);
+      setRecentInvoices(recentResponse.data);
+      setDashboardStats(statsResponse.data);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error.response);
+      // navigate("error-page");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div role="status" className="w-fit mx-auto">
+        <svg
+          aria-hidden="true"
+          className="inline w-12 h-12 w-10 h-10 text-neutral-tertiary animate-spin fill-brand"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+        <span className="sr-only">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 sm:ml-64 mt-14">
       <div className="flex flex-col gap-4 p-4 border border-default border-dashed rounded-base">
@@ -25,7 +80,9 @@ const Dashboard = () => {
             </div>
             <div className="flex flex-col justify-center">
               <h3 className="text-lg font-medium">Total Invoices</h3>
-              <p className="text-2xl font-bold">6</p>
+              <p className="text-2xl font-bold">
+                {dashboardStats.totalInvoices}
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-[auto_1fr] place-content-center px-5 gap-x-5 h-24 bg-white border border-zinc-200 rounded-base">
@@ -34,7 +91,7 @@ const Dashboard = () => {
             </div>
             <div className="flex flex-col justify-center">
               <h3 className="text-lg font-medium">Total Paid</h3>
-              <p className="text-2xl font-bold">$1005</p>
+              <p className="text-2xl font-bold">${dashboardStats.totalPaid}</p>
             </div>
           </div>
           <div className="grid grid-cols-[auto_1fr] place-content-center px-5 gap-x-5 h-24 bg-white border border-zinc-200 rounded-base">
@@ -43,7 +100,9 @@ const Dashboard = () => {
             </div>
             <div className="flex flex-col justify-center">
               <h3 className="text-lg font-medium">Total Unpaid</h3>
-              <p className="text-2xl font-bold">$950</p>
+              <p className="text-2xl font-bold">
+                ${dashboardStats.totalUnpaid}
+              </p>
             </div>
           </div>
         </div>
@@ -119,7 +178,10 @@ const Dashboard = () => {
         </div>
         <div className="grid grid-cols-3 h-auto bg-white border border-zinc-200 rounded-base shadow-xs relative">
           <div className="col-span-3 overflow-x-auto rounded-base">
-            <Link className="text-sm lg:text-base font-medium hover:underline hover:underline-offset-2 text-center absolute -translate-y-1/2 translate-x-1/2 left-auto top-5 right-10 lg:top-7 lg:right-12 2xl:top-12 2xl:right-15">
+            <Link
+              to="/invoices"
+              className="text-sm lg:text-base font-medium hover:underline hover:underline-offset-2 text-center absolute -translate-y-1/2 translate-x-1/2 left-auto top-5 right-10 lg:top-7 lg:right-12 2xl:top-12 2xl:right-15"
+            >
               View all
             </Link>
             <table className="w-full text-sm text-left rtl:text-right text-body">
@@ -154,106 +216,9 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="bg-neutral-primary-soft border-b border-default">
-                  <th
-                    scope="row"
-                    className="px-8 py-4 font-medium text-heading whitespace-nowrap"
-                  >
-                    Apple MacBook Pro 17"
-                    <span className="block text-gray-600">#INV-21569</span>
-                  </th>
-                  <td className="px-8 py-4">0000569</td>
-                  <td className="px-8 py-4">$2999</td>
-                  <td className="px-8 py-4">
-                    <span className="inline-block w-17 text-center bg-danger-soft border border-danger-subtle text-fg-danger text-xs font-medium px-2 py-1 rounded-full">
-                      Unpaid
-                    </span>
-                  </td>
-                  <td className="px-8 py-4">02/12/2004</td>
-                  <td className="px-3 py-4 text-left">
-                    <Link
-                      to=""
-                      className="font-medium text-fg-brand hover:underline"
-                    >
-                      <Eye size={20} />
-                    </Link>
-                  </td>
-                </tr>
-                <tr className="bg-neutral-primary-soft border-b border-default">
-                  <th
-                    scope="row"
-                    className="px-8 py-4 font-medium text-heading whitespace-nowrap"
-                  >
-                    Apple MacBook Pro 17"
-                    <span className="block text-gray-600">#INV-21569</span>
-                  </th>
-                  <td className="px-8 py-4">0000569</td>
-                  <td className="px-8 py-4">$2999</td>
-                  <td className="px-8 py-4">
-                    <span className="inline-block w-17 text-center bg-success-soft border border-success-subtle text-fg-success text-xs font-medium px-2 py-1 rounded-full">
-                      Paid
-                    </span>
-                  </td>
-                  <td className="px-8 py-4">02/12/2004</td>
-                  <td className="px-3 py-4 text-left">
-                    <Link
-                      to=""
-                      className="font-medium text-fg-brand hover:underline"
-                    >
-                      <Eye size={20} />
-                    </Link>
-                  </td>
-                </tr>
-                <tr className="bg-neutral-primary-soft border-b border-default">
-                  <th
-                    scope="row"
-                    className="px-8 py-4 font-medium text-heading whitespace-nowrap"
-                  >
-                    Apple MacBook Pro 17"
-                    <span className="block text-gray-600">#INV-21569</span>
-                  </th>
-                  <td className="px-8 py-4">0000569</td>
-                  <td className="px-8 py-4">$2999</td>
-                  <td className="px-8 py-4">
-                    <span className="inline-block w-17 text-center bg-warning-soft border border-warning-subtle text-fg-warning text-xs font-medium px-2 py-1 rounded-full">
-                      Overdue
-                    </span>
-                  </td>
-                  <td className="px-8 py-4">02/12/2004</td>
-                  <td className="px-3 py-4 text-left">
-                    <Link
-                      to=""
-                      className="font-medium text-fg-brand hover:underline"
-                    >
-                      <Eye size={20} />
-                    </Link>
-                  </td>
-                </tr>
-                <tr className="bg-neutral-primary-soft border-b border-default">
-                  <th
-                    scope="row"
-                    className="px-8 py-4 font-medium text-heading whitespace-nowrap"
-                  >
-                    Apple MacBook Pro 17"
-                    <span className="block text-gray-600">#INV-21569</span>
-                  </th>
-                  <td className="px-8 py-4">0000569</td>
-                  <td className="px-8 py-4">$2999</td>
-                  <td className="px-8 py-4">
-                    <span className="inline-block w-17 text-center bg-brand-soft border border-brand-subtle text-fg-brand text-xs font-medium px-2 py-1 rounded-full">
-                      Pending
-                    </span>
-                  </td>
-                  <td className="px-8 py-4">02/12/2004</td>
-                  <td className="px-3 py-4 text-left">
-                    <Link
-                      to=""
-                      className="font-medium text-fg-brand hover:underline"
-                    >
-                      <Eye size={20} />
-                    </Link>
-                  </td>
-                </tr>
+                {recentInvoices.map((invoice) => {
+                  return <RecentInvoiceRow key={invoice._id} obj={invoice} />;
+                })}
               </tbody>
             </table>
           </div>

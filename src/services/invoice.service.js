@@ -18,6 +18,11 @@ class InvoiceService extends Service {
     return this.service.get(this.urlPrefixe + `/${id}`);
   };
 
+  // GET /api/invoices/stats
+  getInvoicesStats = () => {
+    return this.service.get(this.urlPrefixe + `/stats`);
+  };
+
   // POST /api/invoices/
   createInvoice = (requestBody) => {
     return this.service.post(this.urlPrefixe + `/`, requestBody);

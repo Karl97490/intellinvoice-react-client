@@ -13,6 +13,10 @@ import { Pagination } from "flowbite-react";
 const Invoices = () => {
   const [invoices, setInvoices] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [invoiceStats, setInvoiceStats] = useState({
+    totalInvoices: 0,
+    totalAmount: 0,
+  });
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: Math.floor(invoices?.length / 10),
@@ -73,29 +77,13 @@ const Invoices = () => {
 
   const getData = async () => {
     try {
-      // const response = await invoiceService.getInvoice(
-      //   "6a423237782e2cd8f0f86e80",
-      // );
-      // const body = {
-      //   status: "paid",
-      // };
-      // const response = await invoiceService.createInvoice(body);
-      // const response = await invoiceService.updateInvoice(
-      //   "6a423d23a9a59e059b2d0a80",
-      //   body,
-      // );
-      // const response = await invoiceService.updateStatusInvoice(
-      //   "6a423d23a9a59e059b2d0a80",
-      //   body,
-      // );
-      // const response = await invoiceService.deleteInvoice(
-      //   "6a423d23a9a59e059b2d0a80",
-      // );
       const response = await invoiceService.getAllInvoices(filterQuery);
+      const statsResponse = await invoiceService.getInvoicesStats();
       console.log(filterQuery);
       console.log(response);
       setIsLoading(false);
       setInvoices(response.data);
+      setInvoiceStats(statsResponse.data);
     } catch (error) {
       console.log(error.response);
       // navigate("/error"); // internal servor error page
@@ -178,12 +166,14 @@ const Invoices = () => {
               <div className="flex items-center flex-1 space-x-4">
                 <h5>
                   <span className="text-gray-500">All invoices: </span>
-                  <span className="dark:text-white">{invoices.length}</span>
+                  <span className="dark:text-white">
+                    {invoiceStats.totalInvoices}
+                  </span>
                 </h5>
                 <h5>
                   <span className="text-gray-500">Total amount: </span>
                   <span className="dark:text-white">
-                    ${totalAmount.toFixed(0)}
+                    ${invoiceStats.totalAmount}
                   </span>
                 </h5>
               </div>
