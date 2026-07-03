@@ -1,7 +1,25 @@
 import { Trash2 } from "lucide-react";
 import { PencilLine } from "lucide-react";
+import { useEffect } from "react";
 
 const ItemsRow = ({ obj: item, id: itemId, handleChange, deleteItem }) => {
+  const calculateTotal = () => {
+    const quantity = parseFloat(item.quantity) || 0;
+    const unitPrice = parseFloat(item.unitPrice) || 0;
+    const taxRate = parseFloat(item.tax) || 0;
+
+    const subtotal = quantity * unitPrice;
+    const taxAmount = subtotal * (taxRate / 100);
+    const total = subtotal + taxAmount;
+
+    return total.toFixed(2);
+  };
+
+  useEffect(() => {
+    const total = calculateTotal();
+    handleChange("total", parseFloat(total), itemId);
+  }, [item.quantity, item.unitPrice, item.tax]);
+
   return (
     <tr className="bg-neutral-primary-soft border-b border-default">
       <td className="p-4">
@@ -112,7 +130,9 @@ const ItemsRow = ({ obj: item, id: itemId, handleChange, deleteItem }) => {
         />
       </td>
       <td className="px-8 py-4">
-        <span className="text-heading text-base font-body">$19963</span>
+        <span className="text-heading text-base font-body">
+          ${calculateTotal()}
+        </span>
       </td>
       <td className="px-4 pr-5 py-4">
         <div className="flex gap-x-6 justify-between">

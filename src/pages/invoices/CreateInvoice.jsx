@@ -13,13 +13,15 @@ import itemService from "../../services/item.services";
 const CreateInvoice = () => {
   // const { userId } = useContext(AuthContext);
   const [isCreating, setIsCreating] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [totalItem, setTotalItem] = useState(null);
   const [items, setItems] = useState([
     {
-      title: "Web Dev",
-      quantity: 5,
-      tax: 2.5,
-      unitPrice: 2000,
+      title: "",
+      quantity: 0,
+      tax: 0,
+      unitPrice: 0,
+      total: 0,
     },
   ]);
   const [invoiceForm, setInvoiceForm] = useState({
@@ -40,24 +42,38 @@ const CreateInvoice = () => {
     status: "unpaid",
     issuedDate: new Date(),
     dueDate: new Date(),
-    total: "",
   });
 
-  // useEffect(() => {
-  //   getData();
-  // }, []);
+  useEffect(() => {
+    const calculateInvoiceTotals = () => {
+      let subtotal = 0;
+      let totalTaxAmount = 0;
 
-  // const getData = async () => {
-  //   try {
-  //     const response = await itemService.getAllItems();
-  //     console.log(response);
-  //     setIsLoading(false);
-  //     setItems(response.data);
-  //   } catch (error) {
-  //     console.log(error.response);
-  //     // navigate("/error-page");
-  //   }
-  // };
+      items.forEach((item) => {
+        const quantity = parseFloat(item.quantity) || 0;
+        const unitPrice = parseFloat(item.unitPrice) || 0;
+        const taxRate = parseFloat(item.tax) || 0;
+
+        const itemSubtotal = quantity * unitPrice;
+        const itemTaxAmount = itemSubtotal * (taxRate / 100);
+
+        subtotal += itemSubtotal;
+        totalTaxAmount += itemTaxAmount;
+      });
+
+      const total = subtotal + totalTaxAmount;
+      console.log(total);
+      setInvoiceForm((prev) => ({
+        ...prev,
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        taxAmount: parseFloat(totalTaxAmount.toFixed(2)),
+        total: parseFloat(total.toFixed(2)),
+      }));
+      setIsLoading(false);
+    };
+
+    calculateInvoiceTotals();
+  }, [items]);
 
   const handleChangeItem = (name, value, itemId) => {
     console.log(name, value);
@@ -110,7 +126,6 @@ const CreateInvoice = () => {
   };
 
   const handleChangeDate = (date, field) => {
-    // console.log("CHANGE:", date.toISOString(), field);
     setInvoiceForm((prev) => ({
       ...prev,
       [field]: date,
@@ -354,47 +369,58 @@ const CreateInvoice = () => {
             deleteItem={deleteItem}
           />
           <div className="grid grid-cols-2 gap-6 ">
-            <div className="flex items-center justify-center h-60 bg-white border border-zinc-200 rounded-base shadow-xs">
-              <p className="text-fg-disabled">
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 12h14m-7 7V5"
-                  />
-                </svg>
-              </p>
+            {/* Notes Section */}
+            <div className="bg-white border border-zinc-200 rounded-base shadow-xs p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Notes
+              </h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  Add notes or payment instructions
+                </label>
+                <textarea
+                  className="resize-none overflow-y-auto b border border-gray-300 text-gray-900 rounded-sm focus:ring-primary-600 focus:border-primary-600 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  rows="8"
+                  placeholder="Add any additional notes, payment terms, or special instructions here..."
+                  name="notes"
+                />
+              </div>
             </div>
-            <div className="flex items-center justify-center h-60 bg-white border border-zinc-200 rounded-base shadow-xs">
-              <p className="text-fg-disabled">
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 12h14m-7 7V5"
-                  />
-                </svg>
-              </p>
+
+            <div className="bg-white border border-zinc-200 rounded-base shadow-xs p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                Invoice Summary
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                  <span className="text-gray-600 font-medium">Subtotal</span>
+                  <span className="text-gray-900 font-semibold">
+                    ${invoiceForm.subtotal.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                  <span className="text-gray-600 font-medium">Tax Amount</span>
+                  <span className="text-gray-900 font-semibold">
+                    ${invoiceForm.taxAmount.toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pt-4 bg-gray-50 p-4 rounded-lg">
+                  <span className="text-lg font-bold text-gray-900">
+                    Total Amount Due
+                  </span>
+                  <span className="text-2xl font-bold text-heading">
+                    ${invoiceForm.total.toFixed(2)}
+                  </span>
+                </div>
+
+                {/* <div className="pt-2">
+                  <p className="text-xs text-gray-500">
+                    All amounts are in USD
+                  </p>
+                </div> */}
+              </div>
             </div>
           </div>
         </form>
