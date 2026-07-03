@@ -7,7 +7,7 @@ import { AuthContext } from "../../context/auth.context";
 import clientService from "../../services/client.services";
 
 const CreateClient = () => {
-  const { userId } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [clientForm, setClientForm] = useState({
     name: "",
@@ -29,7 +29,7 @@ const CreateClient = () => {
     e.preventDefault();
     setIsLoading(true);
     const body = {
-      ownerId: userId,
+      ownerId: user?._id,
       ...clientForm,
     };
     try {

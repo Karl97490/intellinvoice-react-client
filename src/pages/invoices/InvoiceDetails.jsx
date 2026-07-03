@@ -13,6 +13,7 @@ import invoiceService from "../../services/invoice.service";
 import { useParams } from "react-router-dom";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
+import { Link } from "react-router-dom";
 
 const InvoiceDetails = () => {
   const [invoice, setInvoice] = useState(null);
@@ -82,7 +83,9 @@ const InvoiceDetails = () => {
               </span>
             </div>
             <div className="flex gap-1">
-              <Button>Edit</Button>
+              <Button as={Link} to={`/invoices/edit/${invoice._id}`}>
+                Edit
+              </Button>
               <Button onClick={handlePrintOrDownload}>Print or Download</Button>
             </div>
           </div>
@@ -217,9 +220,7 @@ const InvoiceDetails = () => {
                   Notes
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed max-w-[40rem]">
-                  Payment is due within 14 days. Thank you for your business.
-                  Please contact us if you have any questions regarding this
-                  invoice.
+                  {invoice.notes}
                 </p>
               </div>
 
@@ -227,12 +228,16 @@ const InvoiceDetails = () => {
                 <div className=" p-6 rounded-lg space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium text-gray-900">€1,120.00</span>
+                    <span className="font-medium text-gray-900">
+                      ${invoice.subTotal || "0.00"}
+                    </span>
                   </div>
 
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax (20%)</span>
-                    <span className="font-medium text-gray-900">€224.00</span>
+                    <span className="text-gray-600">Tax ({invoice.tax}%)</span>
+                    <span className="font-medium text-gray-900">
+                      ${invoice.taxAmount || "0.00"}
+                    </span>
                   </div>
 
                   <div className="border-t-2 border-gray-200 pt-4 flex justify-between">
@@ -240,7 +245,7 @@ const InvoiceDetails = () => {
                       Total
                     </span>
                     <span className="text-2xl font-bold text-heading">
-                      €1,344.00
+                      ${invoice.total || "0.00"}
                     </span>
                   </div>
 
@@ -248,7 +253,9 @@ const InvoiceDetails = () => {
                     <p className="text-xs font-semibold text-heading">
                       Amount Due
                     </p>
-                    <p className="text-xl font-bold text-heading">€1,344.00</p>
+                    <p className="text-xl font-bold text-heading">
+                      ${invoice.total || "0.00"}
+                    </p>
                   </div>
                 </div>
               </div>

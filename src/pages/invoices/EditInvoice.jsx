@@ -1,61 +1,117 @@
-import { NavLink, Link, useParams } from "react-router-dom";
-import { Eye, Plus } from "lucide-react";
-import { Trash2 } from "lucide-react";
-import { PencilLine } from "lucide-react";
+import { NavLink, Link, useParams, useNavigate } from "react-router-dom";
+import { Eye, Plus, Trash2, PencilLine } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import authService from "../../services/auth.service";
 import invoiceService from "../../services/invoice.service";
 import { AuthContext } from "../../context/auth.context";
-import { Datepicker } from "flowbite-react";
+import { Datepicker, Button, TextInput, Textarea } from "flowbite-react";
 import ItemsForm from "../../components/invoices/ItemsForm";
 
 const EditInvoice = () => {
-  // const { userId } = useContext(AuthContext);
+  // const { user } = useContext(AuthContext); // use user?._id instead of userId
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [invoices, setInvoices] = useState(null);
+  const navigate = useNavigate();
   const { invoiceId } = useParams();
   const [items, setItems] = useState([]);
   const [invoiceForm, setInvoiceForm] = useState(null);
 
   useEffect(() => {
-    getData();
+    loadInvoice();
   }, []);
 
-  const getData = async () => {
+  useEffect(() => {
+    calculateInvoiceTotals();
+  }, [items]);
+
+  const loadInvoice = async () => {
+    setIsLoading(true);
     try {
       const response = await invoiceService.getInvoice(invoiceId);
-      console.log(response);
-      setIsLoading(false);
-      const invoices = response.data;
-      setItems((prev) => invoices?.items || []);
-      setInvoiceForm((prev) => ({
-        invoiceNumber: invoices?.invoiceNumber || "",
+      const invoice = response.data;
+
+      // Mettre à jour les items d'abord
+      const invoiceItems = invoice?.items || [];
+      setItems(invoiceItems);
+
+      // Puis mettre à jour le formulaire avec les données du serveur
+      setInvoiceForm({
+        invoiceNumber: invoice?.invoiceNumber || "",
         owner: {
-          name: invoices?.owner.name || "",
-          email: invoices?.owner.email || "",
-          address: invoices?.owner.address || "",
-          phone: invoices?.owner.phone || "",
+          name: invoice?.owner?.name || "",
+          email: invoice?.owner?.email || "",
+          address: invoice?.owner?.address || "",
+          phone: invoice?.owner?.phone || "",
         },
         client: {
-          name: invoices?.client.name || "",
-          email: invoices?.client.email || "",
-          address: invoices?.client.address || "",
-          phone: invoices?.client.phone || "",
+          name: invoice?.client?.name || "",
+          email: invoice?.client?.email || "",
+          address: invoice?.client?.address || "",
+          phone: invoice?.client?.phone || "",
         },
-        items,
-        issuedDate: new Date(invoices?.issuedDate) || "",
-        dueDate: new Date(invoices?.dueDate) || "",
-        total: invoices?.total || "",
-      }));
+        items: invoiceItems,
+        issuedDate: new Date(invoice?.issuedDate) || new Date(),
+        dueDate: new Date(invoice?.dueDate) || new Date(),
+        subTotal: invoice?.subTotal || 0,
+        tax: invoice?.tax || 2.5,
+        taxAmount: invoice?.taxAmount || 0,
+        total: invoice?.total || 0,
+        notes: invoice?.notes || "",
+      });
+      setIsLoading(false);
     } catch (error) {
       console.log(error.response);
       // navigate("/error-page");
     }
   };
 
+  const calculateInvoiceTotals = () => {
+    if (!items || items.length === 0) return;
+
+    let subtotal = 0;
+    let totalTaxAmount = 0;
+
+    items.forEach((item) => {
+      const quantity = parseFloat(item.quantity) || 0;
+      const unitPrice = parseFloat(item.unitPrice) || 0;
+      const taxRate = parseFloat(item.tax) || 0;
+
+      const itemSubtotal = quantity * unitPrice;
+      const itemTaxAmount = itemSubtotal * (taxRate / 100);
+
+      subtotal += itemSubtotal;
+      totalTaxAmount += itemTaxAmount;
+    });
+
+    const total = subtotal + totalTaxAmount;
+    setInvoiceForm((prev) => ({
+      ...prev,
+      subTotal: parseFloat(subtotal.toFixed(2)),
+      taxAmount: parseFloat(totalTaxAmount.toFixed(2)),
+      total: parseFloat(total.toFixed(2)),
+    }));
+  };
+
   const handleChangeItem = (name, value, itemId) => {
     console.log(name, value);
+
+    // Si on change la tax, mettre à jour tous les items ET invoiceForm
+    if (name === "tax") {
+      const taxValue = parseFloat(value) || 0;
+      setItems((prev) =>
+        prev.map((item) => ({
+          ...item,
+          tax: taxValue,
+        })),
+      );
+      setInvoiceForm((prev) => ({
+        ...prev,
+        tax: taxValue,
+      }));
+      return;
+    }
+
+    // Pour les autres champs, juste mettre à jour cet item
     setItems((prev) => {
       const updatedItems = [...prev];
       updatedItems[itemId] = {
@@ -66,14 +122,29 @@ const EditInvoice = () => {
     });
   };
 
+  const handleChangeTax = (value) => {
+    setInvoiceForm((prev) => ({
+      ...prev,
+      tax: parseFloat(value) || 0,
+    }));
+
+    setItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        tax: parseFloat(value) || 0,
+      })),
+    );
+  };
+
   const addItem = () => {
     setItems((prev) => [
       ...prev,
       {
         title: "",
-        quantity: "",
-        tax: "",
-        unitPrice: "",
+        quantity: 0,
+        tax: invoiceForm.tax,
+        unitPrice: 0,
+        total: 0,
       },
     ]);
   };
@@ -105,7 +176,6 @@ const EditInvoice = () => {
   };
 
   const handleChangeDate = (date, field) => {
-    // console.log("CHANGE:", date.toISOString(), field);
     setInvoiceForm((prev) => ({
       ...prev,
       [field]: date,
@@ -123,14 +193,15 @@ const EditInvoice = () => {
       items,
     };
     console.log(body);
-    console.log(body.items);
     try {
       const response = await invoiceService.updateInvoice(invoiceId, body);
       console.log(response);
       setIsEditing(false);
+      // toast success
+      navigate(`/invoices/details/${response.data._id}`);
     } catch (error) {
       console.log(error.response);
-      // error message
+      // error message - toast error
       setIsEditing(false);
     }
   };
@@ -167,228 +238,207 @@ const EditInvoice = () => {
             <div className="flex justify-between items-end p-5 col-span-3 rounded-base bg-neutral-secondary-soft border border-zinc-100">
               <div className="flex flex-col gap-1">
                 <div className="flex gap-1 items-center">
-                  <h2 className="text-xl font-semibold">Edit Invoice</h2>
+                  <h2 className="text-xl font-semibold">Create Invoice</h2>
                 </div>
-                <p className="text-fg-disabled">Edit your invoice</p>
+                <p className="text-fg-disabled">
+                  Create and generate customer invoices
+                </p>
               </div>
-              <button
-                type="submit"
-                className="flex cursor-pointer items-center max-h-15 max-w-30 justify-center gap-1 text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-xl text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
-              >
+              <Button type="submit" className="flex gap-1">
                 Save Invoice
-              </button>
+              </Button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1 bg-white border border-zinc-200 rounded-base shadow-xs p-5">
-            <label className="block text-base font-medium text-gray-900 w-full">
-              Invoice Number
-              <input
-                className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-white p-5 border border-zinc-200 rounded-base flex-1">
+            <div>
+              <label className="block text-base font-medium text-gray-900 w-full">
+                Invoice Number
+              </label>
+              <TextInput
+                id="invoice-number"
                 type="number"
                 name="invoiceNumber"
                 placeholder="INV-1001"
                 value={invoiceForm.invoiceNumber}
                 onChange={handleChange}
                 min={0}
-                disabled
+                required
               />
-            </label>
+            </div>
             <div>
               <label className="block text-base font-medium text-gray-900 w-full">
                 Issue date
-                <Datepicker
-                  value={invoiceForm.issuedDate}
-                  onChange={(date) => handleChangeDate(date, "issuedDate")}
-                />
               </label>
+              <Datepicker
+                value={invoiceForm.issuedDate}
+                onChange={(date) => handleChangeDate(date, "issuedDate")}
+              />
             </div>
             <div>
               <label className="block text-base font-medium text-gray-900 w-full">
                 Due date
-                <Datepicker
-                  value={invoiceForm.dueDate}
-                  onChange={(date) => handleChangeDate(date, "dueDate")}
-                />
               </label>
+              <Datepicker
+                value={invoiceForm.dueDate}
+                onChange={(date) => handleChangeDate(date, "dueDate")}
+              />
             </div>
           </div>
           <div className="grid grid-cols-[1fr] xl:grid-cols-2 gap-4 flex-1">
-            <div className="space-y-1 md:space-y-2 p-6 sm:p-8 bg-white border border-zinc-200 rounded-base shadow-xs">
+            <div className="space-y-2 md:space-y-4 p-6 sm:p-8 bg-white border border-zinc-200 rounded-base">
               <h1 className="text-xl mb-5 font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 Bill From
               </h1>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Name
-                  <input
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    type="text"
-                    name="name"
-                    data-section="owner"
-                    placeholder="Company Name"
-                    value={invoiceForm.owner.name}
-                    onChange={handleChange}
-                    required={true}
-                  />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Email
-                  <input
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    type="email"
-                    name="email"
-                    data-section="owner"
-                    placeholder="name@company.com"
-                    value={invoiceForm.owner.email}
-                    onChange={handleChange}
-                  />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Address
-                  <textarea
-                    className="resize-none overflow-y-auto bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    rows="3"
-                    placeholder="3 road John Doe"
-                    name="address"
-                    data-section="owner"
-                    value={invoiceForm.owner.address}
-                    onChange={handleChange}
-                    required={true}
-                  ></textarea>
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Phone
-                  <input
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    type="phone"
-                    name="phone"
-                    placeholder="22-56-59-74"
-                    data-section="owner"
-                    value={invoiceForm.owner.phone}
-                    onChange={handleChange}
-                  />
-                </label>
-              </div>
+              <TextInput
+                id="owner-name"
+                type="text"
+                name="name"
+                label="Name"
+                placeholder="Company Name"
+                data-section="owner"
+                value={invoiceForm.owner.name}
+                onChange={handleChange}
+                required
+              />
+              <TextInput
+                id="owner-email"
+                type="email"
+                name="email"
+                label="Email"
+                placeholder="name@company.com"
+                data-section="owner"
+                value={invoiceForm.owner.email}
+                onChange={handleChange}
+              />
+              <Textarea
+                id="owner-address"
+                name="address"
+                label="Address"
+                placeholder="3 road John Doe"
+                data-section="owner"
+                rows={3}
+                value={invoiceForm.owner.address}
+                onChange={handleChange}
+                required
+              />
+              <TextInput
+                id="owner-phone"
+                type="tel"
+                name="phone"
+                label="Phone"
+                placeholder="22-56-59-74"
+                data-section="owner"
+                value={invoiceForm.owner.phone}
+                onChange={handleChange}
+              />
             </div>
-            <div className="space-y-1 md:space-y-2 p-6 sm:p-8 bg-white border border-zinc-200 rounded-base shadow-xs">
+            <div className="space-y-2 md:space-y-4 p-6 sm:p-8 bg-white border border-zinc-200 rounded-base">
               <h1 className="text-xl mb-5 font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 Bill To
               </h1>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Name
-                  <input
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    type="text"
-                    name="name"
-                    placeholder="Company Name"
-                    data-section="client"
-                    value={invoiceForm.client.name}
-                    onChange={handleChange}
-                    required={true}
-                  />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Email
-                  <input
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    type="email"
-                    name="email"
-                    placeholder="name@company.com"
-                    data-section="client"
-                    value={invoiceForm.client.email}
-                    onChange={handleChange}
-                  />
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Address
-                  <textarea
-                    className="resize-none overflow-y-auto bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    rows="3"
-                    placeholder="3 road John Doe"
-                    name="address"
-                    data-section="client"
-                    value={invoiceForm.client.address}
-                    onChange={handleChange}
-                    required={true}
-                  ></textarea>
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-white">
-                  Phone
-                  <input
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mt-1 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    type="phone"
-                    name="phone"
-                    placeholder="22-56-59-74"
-                    data-section="client"
-                    value={invoiceForm.client.phone}
-                    onChange={handleChange}
-                  />
-                </label>
-              </div>
+              <TextInput
+                id="client-name"
+                type="text"
+                name="name"
+                label="Name"
+                placeholder="Company Name"
+                data-section="client"
+                value={invoiceForm.client.name}
+                onChange={handleChange}
+                required
+              />
+              <TextInput
+                id="client-email"
+                type="email"
+                name="email"
+                label="Email"
+                placeholder="name@company.com"
+                data-section="client"
+                value={invoiceForm.client.email}
+                onChange={handleChange}
+              />
+              <Textarea
+                id="client-address"
+                name="address"
+                label="Address"
+                placeholder="3 road John Doe"
+                data-section="client"
+                rows={3}
+                value={invoiceForm.client.address}
+                onChange={handleChange}
+                required
+              />
+              <TextInput
+                id="client-phone"
+                type="tel"
+                name="phone"
+                label="Phone"
+                placeholder="22-56-59-74"
+                data-section="client"
+                value={invoiceForm.client.phone}
+                onChange={handleChange}
+              />
             </div>
           </div>
-          <ItemsForm
-            setItems={setItems}
-            items={items}
-            handleChange={handleChangeItem}
-            addItem={addItem}
-            deleteItem={deleteItem}
-          />
+          <div>
+            <ItemsForm
+              setItems={setItems}
+              items={items}
+              handleChange={handleChangeItem}
+              addItem={addItem}
+              deleteItem={deleteItem}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-6 ">
-            <div className="flex items-center justify-center h-60 bg-white border border-zinc-200 rounded-base shadow-xs">
-              <p className="text-fg-disabled">
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 12h14m-7 7V5"
-                  />
-                </svg>
-              </p>
+            <div className="bg-white border border-zinc-200 rounded-base shadow-xs p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Notes
+              </h3>
+              <Textarea
+                className="resize-none"
+                id="notes"
+                name="notes"
+                placeholder="Add any additional notes, payment terms, or special instructions here..."
+                rows={8}
+                value={invoiceForm.notes}
+                onChange={handleChange}
+              />
             </div>
-            <div className="flex items-center justify-center h-60 bg-white border border-zinc-200 rounded-base shadow-xs">
-              <p className="text-fg-disabled">
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 12h14m-7 7V5"
-                  />
-                </svg>
-              </p>
+
+            <div className="bg-white border border-zinc-200 rounded-base shadow-xs p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                Invoice Summary
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                  <span className="text-gray-600 font-medium">Subtotal</span>
+                  <span className="text-gray-900 font-semibold">
+                    ${invoiceForm.subTotal?.toFixed(2) || "0.00"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                  <span className="text-gray-600 font-medium">Tax Amount</span>
+                  <span className="text-gray-900 font-semibold">
+                    ${invoiceForm.taxAmount?.toFixed(2) || "0.00"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pt-4 bg-gray-50 p-4 rounded-lg">
+                  <span className="text-lg font-bold text-gray-900">
+                    Total Amount Due
+                  </span>
+                  <span className="text-2xl font-bold text-heading">
+                    ${invoiceForm.total?.toFixed(2) || "0.00"}
+                  </span>
+                </div>
+
+                {/* <div className="pt-2">
+                  <p className="text-xs text-gray-500">
+                    All amounts are in USD
+                  </p>
+                </div> */}
+              </div>
             </div>
           </div>
         </form>

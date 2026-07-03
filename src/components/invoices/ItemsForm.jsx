@@ -2,27 +2,9 @@ import { Plus } from "lucide-react";
 import itemService from "../../services/item.services";
 import ItemsRow from "./ItemsRow";
 import { useEffect, useState } from "react";
+import { Button } from "flowbite-react";
 
 const ItemsForm = ({ items, setItems, handleChange, addItem, deleteItem }) => {
-  // useEffect(() => {
-  //   getData();
-  // }, []);
-
-  // const getData = async () => {
-  //   try {
-  //     const response = await itemService.getAllItems();
-  //     console.log(response);
-  //     setItems(reponse.data);
-  //   } catch (error) {
-  //     console.log(error.response);
-  //     // navigate("/error-page");
-  //   }
-  // };
-
-  // const addItem = () => {
-  //   console.log("adding new item");
-  // };
-
   return (
     <div className="grid grid-cols-3 gap-4 flex-1 bg-white border border-zinc-200 rounded-base shadow-xs">
       <div className="col-span-3 overflow-x-auto rounded-base">
@@ -35,14 +17,14 @@ const ItemsForm = ({ items, setItems, handleChange, addItem, deleteItem }) => {
                   Add your items to the invoice
                 </p>
               </div>
-              <button
-                className="flex cursor-pointer items-center max-h-15 justify-center gap-1 text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-xl text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+              <Button
                 type="button"
                 onClick={addItem}
+                className="flex gap-1"
               >
                 <Plus size={18} />
                 Add Items
-              </button>
+              </Button>
             </div>
           </caption>
           <thead className="text-sm text-body bg-neutral-secondary-medium border-b border-t border-default-medium">

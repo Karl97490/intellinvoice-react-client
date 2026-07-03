@@ -7,7 +7,7 @@ import { AuthContext } from "../../context/auth.context";
 import userService from "../../services/user.services";
 
 const User = () => {
-  const { userId } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(true);
   const [userForm, setUserForm] = useState(null);
 
@@ -36,7 +36,7 @@ const User = () => {
 
   const getData = async () => {
     try {
-      const response = await userService.getClient(userId);
+      const response = await userService.getClient(user?._id);
       console.log(response);
       setIsLoading(false);
       setUserForm(response.data);
@@ -55,7 +55,7 @@ const User = () => {
     };
     console.log(body);
     try {
-      const response = await userService.updateUserInfos(userId, body);
+      const response = await userService.updateUserInfos(user?._id, body);
       console.log(response);
       setIsLoading(false);
     } catch (error) {

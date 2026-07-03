@@ -5,39 +5,18 @@ import { BarChart3 } from "lucide-react";
 import { Eye } from "lucide-react";
 import { NavLink, Link } from "react-router-dom";
 import RecentInvoiceRow from "../../components/invoices/RecentInvoiceRow";
-import { useEffect, useState } from "react";
-import invoiceService from "../../services/invoice.service";
-import { useStableMemo } from "flowbite-react/helpers/resolve-theme";
+import { useContext, useEffect } from "react";
+import { InvoicesContext } from "../../context/invoices.context";
 
 const Dashboard = () => {
-  const [recentInvoices, setRecentInvoices] = useState(null);
-  const [dashboardStats, setDashboardStats] = useState({
-    totalInvoices: 0,
-    totalPaid: 0,
-    totalUnpaid: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const limit = 5;
+  const { dashboardStats, recentInvoices, isLoadingStats, loadRecentInvoices } =
+    useContext(InvoicesContext);
 
   useEffect(() => {
-    getData();
+    loadRecentInvoices(5);
   }, []);
 
-  const getData = async () => {
-    try {
-      const recentResponse = await invoiceService.getAllInvoices({ limit });
-      const statsResponse = await invoiceService.getInvoicesStats();
-      console.log(statsResponse);
-      setRecentInvoices(recentResponse.data);
-      setDashboardStats(statsResponse.data);
-      setIsLoading(false);
-    } catch (error) {
-      console.log(error.response);
-      // navigate("error-page");
-    }
-  };
-
-  if (isLoading) {
+  if (isLoadingStats) {
     return (
       <div role="status" className="w-fit mx-auto">
         <svg
@@ -184,13 +163,12 @@ const Dashboard = () => {
             >
               View all
             </Link>
-            <table className="w-full text-sm text-left rtl:text-right text-body">
+            <table className="w-full text-sm min-h-35 text-left rtl:text-right text-body">
               <caption className="p-5 text-xl font-semibold text-left rtl:text-right text-heading">
                 Recent Invoices
                 <p className="mt-1.5 text-sm font-normal text-body">
-                  Browse a list of Flowbite products designed to help you work
-                  and play, stay organized, get answers, keep in touch, grow
-                  your business, and more.
+                  Browse your most recent invoices and track their status at a
+                  glance.
                 </p>
               </caption>
               <thead className="text-sm text-body bg-neutral-secondary-medium border-b border-t border-default-medium">
@@ -216,9 +194,20 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {recentInvoices.map((invoice) => {
-                  return <RecentInvoiceRow key={invoice._id} obj={invoice} />;
-                })}
+                {!recentInvoices.length ? (
+                  <tr>
+                    <th
+                      colSpan={6}
+                      className="text-center text-gray-400 text-lg font-medium"
+                    >
+                      Not recents invoices yet.
+                    </th>
+                  </tr>
+                ) : (
+                  recentInvoices.map((invoice) => {
+                    return <RecentInvoiceRow key={invoice._id} obj={invoice} />;
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -355,12 +344,8 @@ const Dashboard = () => {
         <div className="grid grid-cols-3 h-auto">
           <p className="my-2 text-sm text-center col-span-3 text-gray-500">
             © 2026{" "}
-            <a
-              href="https://flowbite.com/"
-              className="hover:underline"
-              target="_blank"
-            >
-              Crack It Squad
+            <a href="#" className="hover:underline">
+              IntelliInvoice
             </a>
             . All rights reserved.
           </p>
