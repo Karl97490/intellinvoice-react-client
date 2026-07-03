@@ -7,7 +7,7 @@ const AuthContext = createContext();
 // Wrapper component
 const AuthProviderWrapper = (props) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const storeToken = (authToken) => {
@@ -22,20 +22,22 @@ const AuthProviderWrapper = (props) => {
     const authToken = localStorage.getItem("authToken");
     if (!authToken) {
       setIsLoggedIn(false);
-      setUserId(null);
+      setUser(null);
       setIsLoading(false);
       return;
     }
     try {
       const response = await authService.verify();
-      console.log(response);
       setIsLoggedIn(true);
-      setUserId(response.data._id);
+      setUser({
+        _id: response.data._id,
+        email: response.data.email,
+        name: response.data.name,
+      });
       setIsLoading(false);
     } catch (error) {
-      console.log(error);
       setIsLoggedIn(false);
-      setUserId(null);
+      setUser(null);
       setIsLoading(false);
     }
   };
@@ -46,7 +48,7 @@ const AuthProviderWrapper = (props) => {
 
   const contextsObj = {
     isLoggedIn,
-    userId,
+    user,
     authenticateUser,
     storeToken,
     removeToken,

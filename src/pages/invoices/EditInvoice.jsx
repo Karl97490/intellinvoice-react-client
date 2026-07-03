@@ -1,4 +1,4 @@
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useParams, useNavigate } from "react-router-dom";
 import { Eye, Plus, Trash2, PencilLine } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import authService from "../../services/auth.service";
@@ -6,52 +6,67 @@ import invoiceService from "../../services/invoice.service";
 import { AuthContext } from "../../context/auth.context";
 import { Datepicker, Button, TextInput, Textarea } from "flowbite-react";
 import ItemsForm from "../../components/invoices/ItemsForm";
-import itemService from "../../services/item.services";
 
-const CreateInvoice = () => {
+const EditInvoice = () => {
   // const { user } = useContext(AuthContext); // use user?._id instead of userId
-  const [isCreating, setIsCreating] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const [items, setItems] = useState([
-    {
-      title: "",
-      quantity: 0,
-      tax: 2.5,
-      unitPrice: 0,
-      total: 0,
-    },
-  ]);
-  const [invoiceForm, setInvoiceForm] = useState({
-    invoiceNumber: "",
-    status: "unpaid", // need to update this
-    owner: {
-      name: "",
-      email: "",
-      address: "",
-      phone: "",
-    },
-    client: {
-      name: "",
-      email: "",
-      address: "",
-      phone: "",
-    },
-    items,
-    issuedDate: new Date(),
-    dueDate: new Date(),
-    subTotal: 0,
-    tax: 2.5,
-    taxAmount: 0,
-    total: 0,
-    notes: "",
-  });
+  const { invoiceId } = useParams();
+  const [items, setItems] = useState([]);
+  const [invoiceForm, setInvoiceForm] = useState(null);
+
+  useEffect(() => {
+    loadInvoice();
+  }, []);
 
   useEffect(() => {
     calculateInvoiceTotals();
   }, [items]);
 
+  const loadInvoice = async () => {
+    setIsLoading(true);
+    try {
+      const response = await invoiceService.getInvoice(invoiceId);
+      const invoice = response.data;
+
+      // Mettre à jour les items d'abord
+      const invoiceItems = invoice?.items || [];
+      setItems(invoiceItems);
+
+      // Puis mettre à jour le formulaire avec les données du serveur
+      setInvoiceForm({
+        invoiceNumber: invoice?.invoiceNumber || "",
+        owner: {
+          name: invoice?.owner?.name || "",
+          email: invoice?.owner?.email || "",
+          address: invoice?.owner?.address || "",
+          phone: invoice?.owner?.phone || "",
+        },
+        client: {
+          name: invoice?.client?.name || "",
+          email: invoice?.client?.email || "",
+          address: invoice?.client?.address || "",
+          phone: invoice?.client?.phone || "",
+        },
+        items: invoiceItems,
+        issuedDate: new Date(invoice?.issuedDate) || new Date(),
+        dueDate: new Date(invoice?.dueDate) || new Date(),
+        subTotal: invoice?.subTotal || 0,
+        tax: invoice?.tax || 2.5,
+        taxAmount: invoice?.taxAmount || 0,
+        total: invoice?.total || 0,
+        notes: invoice?.notes || "",
+      });
+      setIsLoading(false);
+    } catch (error) {
+      // navigate("/error-page");
+    }
+  };
+
   const calculateInvoiceTotals = () => {
+    if (!items || items.length === 0) return;
+
     let subtotal = 0;
     let totalTaxAmount = 0;
 
@@ -166,7 +181,7 @@ const CreateInvoice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsCreating(true);
+    setIsEditing(true);
     const body = {
       ...invoiceForm,
       issuedDate: invoiceForm?.issuedDate.toISOString(),
@@ -174,17 +189,17 @@ const CreateInvoice = () => {
       items,
     };
     try {
-      const response = await invoiceService.createInvoice(body);
-      setIsCreating(false);
+      const response = await invoiceService.updateInvoice(invoiceId, body);
+      setIsEditing(false);
       // toast success
-      navigate(`/invoices/details/${response.data.invoiceId}`);
+      navigate(`/invoices/details/${response.data._id}`);
     } catch (error) {
       // error message - toast error
-      setIsCreating(false);
+      setIsEditing(false);
     }
   };
 
-  if (isCreating || isLoading) {
+  if (isEditing || isLoading) {
     return (
       <div role="status" className="w-fit mx-auto">
         <svg
@@ -425,4 +440,4 @@ const CreateInvoice = () => {
   );
 };
 
-export default CreateInvoice;
+export default EditInvoice;

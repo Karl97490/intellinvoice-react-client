@@ -35,11 +35,9 @@ const Clients = () => {
   const getData = async () => {
     try {
       const response = await clientService.getAllClients();
-      console.log(response);
       setIsLoading(false);
       setClients(response.data);
     } catch (error) {
-      console.log(error.response);
       // navigate("/error"); // internal servor error page
     }
   };

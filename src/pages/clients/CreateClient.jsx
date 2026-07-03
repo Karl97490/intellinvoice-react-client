@@ -7,7 +7,7 @@ import { AuthContext } from "../../context/auth.context";
 import clientService from "../../services/client.services";
 
 const CreateClient = () => {
-  const { userId } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const [clientForm, setClientForm] = useState({
     name: "",
@@ -25,19 +25,16 @@ const CreateClient = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("submitting...");
     e.preventDefault();
     setIsLoading(true);
     const body = {
-      ownerId: userId,
+      ownerId: user?._id,
       ...clientForm,
     };
     try {
-      const response = await clientService.createClient(body);
-      console.log(response);
+      await clientService.createClient(body);
       setIsLoading(false);
     } catch (error) {
-      console.log(error.response);
       setIsLoading(false);
     }
   };
