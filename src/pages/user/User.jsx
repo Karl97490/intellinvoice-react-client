@@ -1,7 +1,3 @@
-import { NavLink, Link } from "react-router-dom";
-import { Eye, Plus } from "lucide-react";
-import { Trash2 } from "lucide-react";
-import { PencilLine } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/auth.context";
 import userService from "../../services/user.services";
@@ -15,6 +11,15 @@ const User = () => {
     getData();
   }, []);
 
+  const getData = async () => {
+    try {
+      const response = await userService.getClient(user?._id);
+      setUserForm(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     const section = e.target.dataset.section;
@@ -32,16 +37,6 @@ const User = () => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const getData = async () => {
-    try {
-      const response = await userService.getClient(user?._id);
-      setIsLoading(false);
-      setUserForm(response.data);
-    } catch (error) {
-      // navigate("/error-page");
-    }
   };
 
   const handleSubmit = async (e) => {
