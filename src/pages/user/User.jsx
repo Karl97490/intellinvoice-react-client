@@ -9,12 +9,6 @@ import userService from "../../services/user.services";
 const User = () => {
   // const { userId } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
-  // const [clientForm, setClientForm] = useState({
-  //   name: "",
-  //   email: "",
-  //   phone: "",
-  //   address: "",
-  // });
 
   useEffect(() => {
     getData();

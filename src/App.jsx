@@ -2,11 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import "./App.css";
 
 import { initFlowbite } from "flowbite";
-import Test from "./components/Test";
-
-import { AuthContext } from "./context/auth.context";
-import { InvoicesProvider } from "./context/invoices.context";
-import authService from "./services/auth.service";
 
 import { Routes, Route } from "react-router-dom";
 
@@ -18,31 +13,18 @@ import Dashboard from "./pages/dasboard/Dasboard";
 import Invoices from "./pages/invoices/Invoices";
 import InvoiceDetails from "./pages/invoices/InvoiceDetails";
 import CreateInvoice from "./pages/invoices/CreateInvoice";
+import EditInvoice from "./pages/invoices/EditInvoice";
 import Clients from "./pages/clients/Clients";
 import CreateClient from "./pages/clients/CreateClient";
 import User from "./pages/user/User";
 
 import OnlyPrivate from "./pages/auth/OnlyPrivate";
 import OnlyPublic from "./pages/auth/OnlyPublic";
-import EditInvoice from "./pages/invoices/EditInvoice";
 
 function App() {
   useEffect(() => {
     initFlowbite();
   }, []);
-
-  useEffect(
-    () =>
-      async function getData() {
-        try {
-          const response = await authService.test();
-          console.log(response);
-        } catch (error) {
-          console.log(error);
-        }
-      },
-    [],
-  );
 
   return (
     <>
