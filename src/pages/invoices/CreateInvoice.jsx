@@ -77,8 +77,6 @@ const CreateInvoice = () => {
   };
 
   const handleChangeItem = (name, value, itemId) => {
-    console.log(name, value);
-
     // Si on change la tax, mettre à jour tous les items ET invoiceForm
     if (name === "tax") {
       const taxValue = parseFloat(value) || 0;
@@ -167,7 +165,6 @@ const CreateInvoice = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("creating...");
     e.preventDefault();
     setIsCreating(true);
     const body = {
@@ -176,15 +173,12 @@ const CreateInvoice = () => {
       dueDate: invoiceForm?.dueDate.toISOString(),
       items,
     };
-    console.log(body);
     try {
       const response = await invoiceService.createInvoice(body);
-      console.log(response);
       setIsCreating(false);
       // toast success
       navigate(`/invoices/details/${response.data.invoiceId}`);
     } catch (error) {
-      console.log(error.response);
       // error message - toast error
       setIsCreating(false);
     }

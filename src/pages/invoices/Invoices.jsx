@@ -104,38 +104,28 @@ const Invoices = () => {
     try {
       const response = await invoiceService.getAllInvoices(queryParams);
       const statsResponse = await invoiceService.getInvoicesStats();
-      console.log(queryParams);
-      console.log(response);
       setIsLoading(false);
       setInvoices(response.data);
       setInvoiceStats(statsResponse.data);
     } catch (error) {
-      console.log(error.response);
       // navigate("/error"); // internal servor error page
     }
   };
 
   const handleUpdateStatus = async (invoiceId, newStatus) => {
-    console.log(invoiceId, newStatus);
     try {
-      const response = await invoiceService.updateStatusInvoice(invoiceId, {
+      await invoiceService.updateStatusInvoice(invoiceId, {
         status: newStatus,
       });
-      console.log(response);
       getData();
-    } catch (error) {
-      console.log(error.response);
-    }
+    } catch (error) {}
   };
 
   const handleDelete = async (invoiceId) => {
-    console.log("delete invoice with id: " + invoiceId);
     try {
-      const response = await invoiceService.deleteInvoice(invoiceId);
-      console.log(response);
+      await invoiceService.deleteInvoice(invoiceId);
       getData();
     } catch (error) {
-      console.log(error.response);
       // navigate("error-response");
     }
   };

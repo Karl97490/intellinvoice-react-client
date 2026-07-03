@@ -28,11 +28,9 @@ const InvoiceDetails = () => {
   const getData = async () => {
     try {
       const response = await invoiceService.getInvoice(invoiceId);
-      console.log(response);
       setInvoice(response.data);
       setIsLoading(false);
     } catch (error) {
-      console.log(error.response);
       // navigate("error-page");
     }
   };

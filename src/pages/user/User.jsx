@@ -37,29 +37,23 @@ const User = () => {
   const getData = async () => {
     try {
       const response = await userService.getClient(user?._id);
-      console.log(response);
       setIsLoading(false);
       setUserForm(response.data);
     } catch (error) {
-      console.log(error.response);
       // navigate("/error-page");
     }
   };
 
   const handleSubmit = async (e) => {
-    console.log("submitting...");
     e.preventDefault();
     setIsLoading(true);
     const body = {
       ...userForm,
     };
-    console.log(body);
     try {
-      const response = await userService.updateUserInfos(user?._id, body);
-      console.log(response);
+      await userService.updateUserInfos(user?._id, body);
       setIsLoading(false);
     } catch (error) {
-      console.log(error.response);
       setIsLoading(false);
     }
   };

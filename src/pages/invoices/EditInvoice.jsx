@@ -60,7 +60,6 @@ const EditInvoice = () => {
       });
       setIsLoading(false);
     } catch (error) {
-      console.log(error.response);
       // navigate("/error-page");
     }
   };
@@ -93,8 +92,6 @@ const EditInvoice = () => {
   };
 
   const handleChangeItem = (name, value, itemId) => {
-    console.log(name, value);
-
     // Si on change la tax, mettre à jour tous les items ET invoiceForm
     if (name === "tax") {
       const taxValue = parseFloat(value) || 0;
@@ -183,7 +180,6 @@ const EditInvoice = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("editing...");
     e.preventDefault();
     setIsEditing(true);
     const body = {
@@ -192,15 +188,12 @@ const EditInvoice = () => {
       dueDate: invoiceForm?.dueDate.toISOString(),
       items,
     };
-    console.log(body);
     try {
       const response = await invoiceService.updateInvoice(invoiceId, body);
-      console.log(response);
       setIsEditing(false);
       // toast success
       navigate(`/invoices/details/${response.data._id}`);
     } catch (error) {
-      console.log(error.response);
       // error message - toast error
       setIsEditing(false);
     }

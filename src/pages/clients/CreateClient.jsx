@@ -25,7 +25,6 @@ const CreateClient = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("submitting...");
     e.preventDefault();
     setIsLoading(true);
     const body = {
@@ -33,11 +32,9 @@ const CreateClient = () => {
       ...clientForm,
     };
     try {
-      const response = await clientService.createClient(body);
-      console.log(response);
+      await clientService.createClient(body);
       setIsLoading(false);
     } catch (error) {
-      console.log(error.response);
       setIsLoading(false);
     }
   };

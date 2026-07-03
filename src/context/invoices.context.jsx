@@ -26,7 +26,6 @@ export const InvoicesProvider = ({ children }) => {
       setDashboardStats(statsResponse.data);
       setError(null);
     } catch (err) {
-      console.log(err.response);
       setError(err.response?.data?.message || "Error loading stats");
     } finally {
       setIsLoadingStats(false);
@@ -41,7 +40,6 @@ export const InvoicesProvider = ({ children }) => {
       });
       setRecentInvoices(response.data);
     } catch (err) {
-      console.log(err.response);
       setError(err.response?.data?.message || "Error loading recent invoices");
     }
   };

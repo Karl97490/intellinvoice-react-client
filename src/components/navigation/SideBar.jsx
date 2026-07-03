@@ -35,7 +35,6 @@ const SideBar = () => {
   const handleConfirmLogOut = () => {
     setShowLogoutModal(false);
     removeToken();
-    console.log("logout success.");
     authenticateUser();
     navigate("/login");
   };
