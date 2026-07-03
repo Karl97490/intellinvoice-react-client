@@ -11,11 +11,14 @@ import {
 import { useEffect, useState } from "react";
 import invoiceService from "../../services/invoice.service";
 import { useParams } from "react-router-dom";
+import { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
 
 const InvoiceDetails = () => {
   const [invoice, setInvoice] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { invoiceId } = useParams();
+  const componentRef = useRef();
 
   useEffect(() => {
     getData();
@@ -32,6 +35,16 @@ const InvoiceDetails = () => {
       // navigate("error-page");
     }
   };
+
+  const handlePrintOrDownload = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: `invoice-${invoice?.invoiceNumber}`,
+    pageStyle: `
+    @media print {
+      body { margin: 0; }
+      div { page-break-inside: avoid; }
+    }`,
+  });
 
   if (isLoading) {
     return (
@@ -61,147 +74,193 @@ const InvoiceDetails = () => {
     <div className="p-4 sm:ml-64 mt-14">
       <div className="flex flex-col gap-4 p-4 border border-default border-dashed rounded-base">
         <div className="grid grid-cols-3 gap-4 flex-1">
-          <div className="flex justify-between items-end p-5 h-24 col-span-3 rounded-base bg-neutral-secondary-soft border border-zinc-100 bg-red-100">
+          <div className="flex justify-between items-end p-5 h-24 col-span-3 rounded-base bg-neutral-secondary-soft border border-zinc-100">
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold">Invoice Details</h2>
               <span className="block text-gray-500 text-2xl font-semibold">
-                #INV-1235
+                #INV-{invoice.invoiceNumber}
               </span>
             </div>
             <div className="flex gap-1">
               <Button>Edit</Button>
-              <Button>Print or Download</Button>
+              <Button onClick={handlePrintOrDownload}>Print or Download</Button>
             </div>
           </div>
         </div>
-        <section className="grid grid-cols-1 place-content-center gap-x-5 bg-white border border-zinc-200 rounded-base">
-          <Card>
-            {/* Header */}
-            <div className="flex items-start justify-between border-b pb-6">
+        <section
+          ref={componentRef}
+          className="grid grid-cols-1 place-content-center gap-x-5 bg-white rounded-base"
+        >
+          <Card className="shadow-none border-0">
+            {/* Header with Logo/Company Info */}
+            <div className="flex items-start justify-between border-b-2 border-gray-200 pb-8 mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
+                <h1 className="text-4xl font-bold text-gray-900">INVOICE</h1>
+                <p className="mt-2 text-sm text-gray-500 font-medium">
                   Invoice #INV-{invoice.invoiceNumber}
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Thank you for your business.
                 </p>
+              </div>
+              <div className="text-right">
+                <h3 className="text-2xl font-bold text-gray-900">
+                  {invoice.owner.name}
+                </h3>
+                <p className="text-sm text-gray-600 mt-2">
+                  {invoice.owner.email}
+                </p>
+                <p className="text-sm text-gray-600">{invoice.owner.phone}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 border-b pb-8 md:grid-cols-3">
-              {/* Bill From */}
-              <div>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 pb-8 border-b border-gray-200">
+              <div className=" p-6 rounded-lg">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-4">
                   Bill From
                 </h3>
-
-                <div className="space-y-1 text-sm text-gray-700">
+                <div className="space-y-2 text-sm text-gray-700">
                   <p className="font-semibold text-gray-900">
                     {invoice.owner.name}
                   </p>
-                  <p>{invoice.owner.email}</p>
-                  <p>{invoice.owner.phone}</p>
-                  <p>{invoice.owner.address}</p>
+                  <p className="text-gray-600">{invoice.owner.address}</p>
+                  <p className="text-gray-600">{invoice.owner.email}</p>
+                  <p className="text-gray-600">{invoice.owner.phone}</p>
                 </div>
               </div>
 
-              {/* Bill To */}
-              <div>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              <div className=" p-6 rounded-lg">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-4">
                   Bill To
                 </h3>
-
-                <div className="space-y-1 text-sm text-gray-700">
+                <div className="space-y-2 text-sm text-gray-700">
                   <p className="font-semibold text-gray-900">
                     {invoice.client.name}
                   </p>
-                  <p>{invoice.client.email}</p>
-                  <p>{invoice.client.phone}</p>
-                  <p>{invoice.client.address}</p>
+                  <p className="text-gray-600">{invoice.client.address}</p>
+                  <p className="text-gray-600">{invoice.client.email}</p>
+                  <p className="text-gray-600">{invoice.client.phone}</p>
                 </div>
               </div>
 
-              {/* Invoice Info */}
-              <div className="md:text-right">
+              <div className="border border-gray-100 p-6 rounded-lg">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-600 mb-4">
+                  Invoice Details
+                </h3>
                 <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-gray-500">Invoice Number</p>
-                    <p className="font-semibold text-gray-900">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Invoice Number:</span>
+                    <span className="font-semibold text-gray-900">
                       INV-{invoice.invoiceNumber}
-                    </p>
+                    </span>
                   </div>
-
-                  <div>
-                    <p className="text-gray-500">Issued Date</p>
-                    <p className="font-medium">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Issued Date:</span>
+                    <span className="font-semibold text-gray-900">
                       {new Date(invoice.issuedDate).toLocaleDateString("en-US")}
-                    </p>
+                    </span>
                   </div>
-
-                  <div>
-                    <p className="text-gray-500">Due Date</p>
-                    <p className="font-medium">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Due Date:</span>
+                    <span className="font-semibold text-gray-900">
                       {new Date(invoice.dueDate).toLocaleDateString("en-US")}
-                    </p>
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Items */}
-            <div className="mt-8 overflow-x-auto">
+            <div className="mb-8">
               <Table>
-                <TableHead>
-                  <TableHeadCell>Item</TableHeadCell>
-                  <TableHeadCell>Qty</TableHeadCell>
-                  <TableHeadCell>Unit Price</TableHeadCell>
-                  <TableHeadCell>Tax</TableHeadCell>
-                  <TableHeadCell className="text-right">Total</TableHeadCell>
+                <TableHead className="bg-gray-100">
+                  <TableHeadCell className="bg-gray-100 font-semibold text-gray-900">
+                    Item Description
+                  </TableHeadCell>
+                  <TableHeadCell className="bg-gray-100 font-semibold text-gray-900 text-center">
+                    Quantity
+                  </TableHeadCell>
+                  <TableHeadCell className="bg-gray-100 font-semibold text-gray-900 text-right">
+                    Unit Price
+                  </TableHeadCell>
+                  <TableHeadCell className="bg-gray-100 font-semibold text-gray-900 text-center">
+                    Tax
+                  </TableHeadCell>
+                  <TableHeadCell className="bg-gray-100 font-semibold text-gray-900 text-right">
+                    Total
+                  </TableHeadCell>
                 </TableHead>
 
-                <TableBody className="divide-y">
-                  {invoice?.items.map((item) => {
-                    return (
-                      <TableRow>
-                        <TableCell>{item.title}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>${item.unitPrice}</TableCell>
-                        <TableCell>{item.tax}%</TableCell>
-                        <TableCell className="text-right">€1,200.00</TableCell>
-                      </TableRow>
-                    );
-                  })}
+                <TableBody className="divide-y divide-gray-200">
+                  {invoice?.items.map((item, index) => (
+                    <TableRow key={index} className="hover:">
+                      <TableCell className="font-medium text-gray-900">
+                        {item.title}
+                      </TableCell>
+                      <TableCell className="text-center text-gray-700">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="text-right text-gray-700">
+                        ${item.unitPrice.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-center text-gray-700">
+                        {item.tax}%
+                      </TableCell>
+                      <TableCell className="text-right font-semibold text-gray-900">
+                        ${(item.quantity * item.unitPrice).toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
 
-            {/* Totals */}
-            <div className="mt-8 flex justify-end">
-              <div className="w-full max-w-sm space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span>€1,120.00</span>
-                </div>
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="flex-1">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-600 mb-3">
+                  Notes
+                </h3>
+                <p className="text-sm text-gray-600 leading-relaxed max-w-[40rem]">
+                  Payment is due within 14 days. Thank you for your business.
+                  Please contact us if you have any questions regarding this
+                  invoice.
+                </p>
+              </div>
 
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax</span>
-                  <span>€224.00</span>
-                </div>
+              <div className="w-full md:w-80">
+                <div className=" p-6 rounded-lg space-y-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium text-gray-900">€1,120.00</span>
+                  </div>
 
-                <div className="flex justify-between border-t pt-3 text-lg font-bold">
-                  <span>Total</span>
-                  <span>€1,344.00</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Tax (20%)</span>
+                    <span className="font-medium text-gray-900">€224.00</span>
+                  </div>
+
+                  <div className="border-t-2 border-gray-200 pt-4 flex justify-between">
+                    <span className="text-lg font-bold text-gray-900">
+                      Total
+                    </span>
+                    <span className="text-2xl font-bold text-heading">
+                      €1,344.00
+                    </span>
+                  </div>
+
+                  <div className="pt-2 bg-gray-50 border border-gray-100 p-3 rounded text-center">
+                    <p className="text-xs font-semibold text-heading">
+                      Amount Due
+                    </p>
+                    <p className="text-xl font-bold text-heading">€1,344.00</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Notes */}
-            <div className="mt-10 border-t pt-6">
-              <h3 className="mb-2 font-semibold text-gray-900">Notes</h3>
-              <p className="text-sm text-gray-600">
-                Payment is due within 14 days. Thank you for your business.
-                Please contact us if you have any questions regarding this
-                invoice.
+            <div className="border-t-2 border-gray-200 mt-8 pt-6 text-center">
+              <p className="text-xs text-gray-500">
+                © 2026 {invoice.owner.name}. All rights reserved.
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                This invoice was generated on{" "}
+                {new Date().toLocaleDateString("en-US")}
               </p>
             </div>
           </Card>
